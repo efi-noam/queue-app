@@ -2,19 +2,21 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { Resend } from 'resend';
 
-// Use service role key to bypass RLS for server-side operations
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
-
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Force dynamic to prevent build-time evaluation
+export const dynamic = 'force-dynamic';
 
 function generateResetCode(): string {
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
 export async function POST(request: NextRequest) {
+  // Create clients inside the function to avoid build-time errors
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+  const resend = new Resend(process.env.RESEND_API_KEY);
+
   try {
     const { businessId, phone, businessName } = await request.json();
 
