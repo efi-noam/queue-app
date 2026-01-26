@@ -17,8 +17,8 @@ export async function registerCustomer(
   businessId: string,
   phone: string,
   name: string,
-  email: string,
-  password: string
+  password: string,
+  email?: string
 ): Promise<{ success: boolean; customer?: Customer; error?: string }> {
   // Check if customer already exists by phone
   const { data: existingPhone } = await supabase
@@ -32,16 +32,18 @@ export async function registerCustomer(
     return { success: false, error: 'מספר טלפון זה כבר רשום' };
   }
 
-  // Check if customer already exists by email
-  const { data: existingEmail } = await supabase
-    .from('customers')
-    .select('*')
-    .eq('business_id', businessId)
-    .eq('email', email.toLowerCase())
-    .single();
+  // Check if customer already exists by email (only if email provided)
+  if (email) {
+    const { data: existingEmail } = await supabase
+      .from('customers')
+      .select('*')
+      .eq('business_id', businessId)
+      .eq('email', email.toLowerCase())
+      .single();
 
-  if (existingEmail) {
-    return { success: false, error: 'אימייל זה כבר רשום' };
+    if (existingEmail) {
+      return { success: false, error: 'אימייל זה כבר רשום' };
+    }
   }
 
   // Create new customer
@@ -51,7 +53,7 @@ export async function registerCustomer(
       business_id: businessId,
       phone,
       name,
-      email: email.toLowerCase(),
+      email: email ? email.toLowerCase() : null,
       pin_hash: hashPassword(password),
     })
     .select()

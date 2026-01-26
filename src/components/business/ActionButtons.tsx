@@ -33,7 +33,7 @@ export function ActionButtons({ business }: ActionButtonsProps) {
     {
       icon: MapPinIcon,
       label: 'נווט',
-      href: business.address ? `https://maps.google.com/?q=${encodeURIComponent(business.address + ' ' + (business.city || ''))}` : null,
+      href: business.address ? `https://maps.google.com/?q=${encodeURIComponent(business.address)}` : null,
       color: 'from-red-400 to-red-600',
       hoverColor: 'group-hover:text-red-600',
     },

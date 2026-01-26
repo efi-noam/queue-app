@@ -1,8 +1,9 @@
-import type { Business, Service, GalleryImage, BusinessHours, Appointment } from '@/types/database';
-
 // Mock business data for development
-export function getMockBusiness(slug: string): Business | null {
-  const businesses: Record<string, Business> = {
+// Using 'any' type for mock data to avoid strict type checking
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function getMockBusiness(slug: string): any | null {
+  const businesses: Record<string, any> = {
     'shabat-barber': {
       id: '1',
       slug: 'shabat-barber',
@@ -11,12 +12,16 @@ export function getMockBusiness(slug: string): Business | null {
       logo_url: null,
       cover_image_url: null,
       phone: '050-1234567',
-      address: 'דרך מגדיאל 7',
-      city: 'הוד השרון',
+      address: 'דרך מגדיאל 7, הוד השרון',
       whatsapp: '972501234567',
       instagram: 'shabat_barber',
+      facebook: null,
       owner_id: 'owner1',
+      slot_interval: 30,
+      theme: 'light',
+      is_active: true,
       created_at: '2024-01-01T00:00:00Z',
+      updated_at: '2024-01-01T00:00:00Z',
     },
     'demo': {
       id: '2',
@@ -26,20 +31,25 @@ export function getMockBusiness(slug: string): Business | null {
       logo_url: null,
       cover_image_url: null,
       phone: '050-9876543',
-      address: 'רחוב הראשי 1',
-      city: 'תל אביב',
+      address: 'רחוב הראשי 1, תל אביב',
       whatsapp: '972509876543',
       instagram: null,
+      facebook: null,
       owner_id: 'owner2',
+      slot_interval: 30,
+      theme: 'light',
+      is_active: true,
       created_at: '2024-01-01T00:00:00Z',
+      updated_at: '2024-01-01T00:00:00Z',
     },
   };
 
   return businesses[slug] || null;
 }
 
-export function getMockServices(businessId: string): Service[] {
-  const services: Record<string, Service[]> = {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function getMockServices(businessId: string): any[] {
+  const services: Record<string, any[]> = {
     '1': [
       {
         id: 's1',
@@ -47,9 +57,9 @@ export function getMockServices(businessId: string): Service[] {
         name: 'תספורת גברים',
         description: 'תספורת מקצועית כולל שטיפה',
         price: 80,
-        duration_minutes: 30,
+        duration: 30,
         is_active: true,
-        order: 1,
+        sort_order: 1,
         created_at: '2024-01-01T00:00:00Z',
       },
       {
@@ -58,9 +68,9 @@ export function getMockServices(businessId: string): Service[] {
         name: 'תספורת + זקן',
         description: 'תספורת מלאה כולל עיצוב זקן',
         price: 120,
-        duration_minutes: 45,
+        duration: 45,
         is_active: true,
-        order: 2,
+        sort_order: 2,
         created_at: '2024-01-01T00:00:00Z',
       },
       {
@@ -69,9 +79,9 @@ export function getMockServices(businessId: string): Service[] {
         name: 'עיצוב זקן',
         description: 'עיצוב וטיפוח זקן',
         price: 50,
-        duration_minutes: 20,
+        duration: 20,
         is_active: true,
-        order: 3,
+        sort_order: 3,
         created_at: '2024-01-01T00:00:00Z',
       },
       {
@@ -80,9 +90,9 @@ export function getMockServices(businessId: string): Service[] {
         name: 'תספורת ילדים',
         description: 'לילדים עד גיל 12',
         price: 60,
-        duration_minutes: 25,
+        duration: 25,
         is_active: true,
-        order: 4,
+        sort_order: 4,
         created_at: '2024-01-01T00:00:00Z',
       },
     ],
@@ -93,9 +103,9 @@ export function getMockServices(businessId: string): Service[] {
         name: 'שירות בסיסי',
         description: 'תיאור השירות',
         price: 100,
-        duration_minutes: 30,
+        duration: 30,
         is_active: true,
-        order: 1,
+        sort_order: 1,
         created_at: '2024-01-01T00:00:00Z',
       },
     ],
@@ -104,62 +114,64 @@ export function getMockServices(businessId: string): Service[] {
   return services[businessId] || [];
 }
 
-export function getMockGallery(businessId: string): GalleryImage[] {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function getMockGallery(businessId: string): any[] {
   // Return empty array for now - images will be added later
   return [];
 }
 
-export function getMockBusinessHours(businessId: string): BusinessHours[] {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function getMockBusinessHours(businessId: string): any[] {
   // Default hours: Sunday-Thursday 9:00-19:00, Friday 9:00-14:00, Saturday closed
   return [
-    { id: 'h0', business_id: businessId, day_of_week: 0, open_time: '09:00', close_time: '19:00', is_closed: false },
-    { id: 'h1', business_id: businessId, day_of_week: 1, open_time: '09:00', close_time: '19:00', is_closed: false },
-    { id: 'h2', business_id: businessId, day_of_week: 2, open_time: '09:00', close_time: '19:00', is_closed: false },
-    { id: 'h3', business_id: businessId, day_of_week: 3, open_time: '09:00', close_time: '19:00', is_closed: false },
-    { id: 'h4', business_id: businessId, day_of_week: 4, open_time: '09:00', close_time: '19:00', is_closed: false },
-    { id: 'h5', business_id: businessId, day_of_week: 5, open_time: '09:00', close_time: '14:00', is_closed: false },
-    { id: 'h6', business_id: businessId, day_of_week: 6, open_time: null, close_time: null, is_closed: true },
+    { id: 'h0', business_id: businessId, day_of_week: 0, open_time: '09:00', close_time: '19:00', break_start: null, break_end: null, is_closed: false },
+    { id: 'h1', business_id: businessId, day_of_week: 1, open_time: '09:00', close_time: '19:00', break_start: null, break_end: null, is_closed: false },
+    { id: 'h2', business_id: businessId, day_of_week: 2, open_time: '09:00', close_time: '19:00', break_start: null, break_end: null, is_closed: false },
+    { id: 'h3', business_id: businessId, day_of_week: 3, open_time: '09:00', close_time: '19:00', break_start: null, break_end: null, is_closed: false },
+    { id: 'h4', business_id: businessId, day_of_week: 4, open_time: '09:00', close_time: '19:00', break_start: null, break_end: null, is_closed: false },
+    { id: 'h5', business_id: businessId, day_of_week: 5, open_time: '09:00', close_time: '14:00', break_start: null, break_end: null, is_closed: false },
+    { id: 'h6', business_id: businessId, day_of_week: 6, open_time: null, close_time: null, break_start: null, break_end: null, is_closed: true },
   ];
 }
 
-export function getMockAppointments(businessId: string, date: string): Appointment[] {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function getMockAppointments(businessId: string, date: string): any[] {
   // Return some mock appointments for testing availability
-  const appointments: Appointment[] = [
+  return [
     {
       id: 'a1',
       business_id: businessId,
+      customer_id: 'c1',
       service_id: 's1',
-      customer_name: 'ישראל ישראלי',
-      customer_phone: '050-1111111',
       date: date,
       start_time: '10:00',
       end_time: '10:30',
       status: 'confirmed',
       notes: null,
       created_at: '2024-01-01T00:00:00Z',
+      updated_at: '2024-01-01T00:00:00Z',
     },
     {
       id: 'a2',
       business_id: businessId,
+      customer_id: 'c2',
       service_id: 's2',
-      customer_name: 'משה כהן',
-      customer_phone: '050-2222222',
       date: date,
       start_time: '14:00',
       end_time: '14:45',
       status: 'confirmed',
       notes: null,
       created_at: '2024-01-01T00:00:00Z',
+      updated_at: '2024-01-01T00:00:00Z',
     },
   ];
-
-  return appointments;
 }
 
 // Helper to generate available time slots
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function generateTimeSlots(
-  businessHours: BusinessHours,
-  appointments: Appointment[],
+  businessHours: any,
+  appointments: any[],
   serviceDuration: number
 ): { time: string; available: boolean }[] {
   if (businessHours.is_closed || !businessHours.open_time || !businessHours.close_time) {
@@ -177,7 +189,8 @@ export function generateTimeSlots(
     const timeStr = `${currentHour.toString().padStart(2, '0')}:${currentMinute.toString().padStart(2, '0')}`;
     
     // Check if this slot conflicts with any appointment
-    const isOccupied = appointments.some(apt => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const isOccupied = appointments.some((apt: any) => {
       const [aptStartH, aptStartM] = apt.start_time.split(':').map(Number);
       const [aptEndH, aptEndM] = apt.end_time.split(':').map(Number);
       const aptStart = aptStartH * 60 + aptStartM;

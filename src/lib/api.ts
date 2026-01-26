@@ -571,8 +571,8 @@ export async function getAvailableTimeSlots(
   let breakEnd: string | null = null;
 
   // Get slot interval from business if not provided
-  let interval = slotInterval;
-  if (!interval) {
+  let interval: number = slotInterval || 30;
+  if (!slotInterval) {
     const { data: business } = await supabase
       .from('businesses')
       .select('slot_interval')

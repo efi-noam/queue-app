@@ -8,7 +8,7 @@ interface BusinessInfoProps {
 }
 
 export function BusinessInfo({ business }: BusinessInfoProps) {
-  const address = [business.address, business.city].filter(Boolean).join(', ');
+  const address = business.address || '';
 
   return (
     <div className="text-center pt-18 pb-6 px-4 animate-fade-in">

@@ -97,7 +97,8 @@ export async function getAllBusinessesWithStats(): Promise<BusinessStats[]> {
   }
 
   // Get stats for each business
-  const statsPromises = businesses.map(async (business) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const statsPromises = businesses.map(async (business: any) => {
     const [
       { count: customersCount },
       { count: appointmentsCount },
@@ -281,7 +282,8 @@ export async function getRecentActivity(limit: number = 20): Promise<RecentActiv
 
   if (!appointments) return [];
 
-  return appointments.map((apt) => ({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return appointments.map((apt: any) => ({
     id: apt.id,
     type: 'appointment' as const,
     businessName: (apt.businesses as any)?.name || 'Unknown',
