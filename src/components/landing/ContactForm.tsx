@@ -131,7 +131,7 @@ export function ContactForm() {
 
       <p className="text-gray-500 text-sm mt-6">
         או התקשרו אלינו: 
-        <a href="tel:050-1234567" className="text-blue-400 hover:underline mr-1">050-1234567</a>
+        <a href="tel:0505999662" className="text-blue-400 hover:underline mr-1">050-599-9662</a>
       </p>
     </div>
   );
