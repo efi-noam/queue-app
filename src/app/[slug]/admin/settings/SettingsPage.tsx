@@ -654,7 +654,7 @@ export function SettingsPage({ business, services: initialServices, businessHour
             <div className="bg-white rounded-2xl p-5 shadow-lg shadow-gray-200/50 border border-gray-100">
               <h3 className="font-bold text-gray-900 mb-4">ערכת נושא</h3>
               <div className="grid grid-cols-4 sm:grid-cols-7 gap-2">
-                {[
+                {([
                   { id: 'light', name: 'בהיר', colors: 'from-blue-500 to-indigo-600', bg: 'bg-gray-50' },
                   { id: 'dark', name: 'כהה', colors: 'from-purple-500 to-cyan-500', bg: 'bg-gray-900' },
                   { id: 'ocean', name: 'אוקיינוס', colors: 'from-cyan-500 to-blue-600', bg: 'bg-cyan-50' },
@@ -662,7 +662,7 @@ export function SettingsPage({ business, services: initialServices, businessHour
                   { id: 'forest', name: 'יער', colors: 'from-emerald-500 to-green-600', bg: 'bg-emerald-50' },
                   { id: 'rose', name: 'ורוד', colors: 'from-pink-400 to-rose-500', bg: 'bg-pink-50' },
                   { id: 'modern', name: 'מודרני', colors: 'from-violet-500 via-purple-500 to-fuchsia-500', bg: 'bg-gray-900' },
-                ].map((theme) => (
+                ] as const).map((theme) => (
                   <button
                     key={theme.id}
                     onClick={async () => {
