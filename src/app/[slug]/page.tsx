@@ -3,9 +3,6 @@ import { BusinessPage } from './BusinessPage';
 import { BusinessPausedPage } from './BusinessPausedPage';
 import { getBusinessBySlug, getServicesByBusinessId, getGalleryImages } from '@/lib/api';
 
-// Force dynamic rendering to ensure env vars are read at runtime
-export const dynamic = 'force-dynamic';
-
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
