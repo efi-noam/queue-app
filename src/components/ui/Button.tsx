@@ -6,6 +6,7 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   size?: 'sm' | 'md' | 'lg' | 'xl';
   fullWidth?: boolean;
   loading?: boolean;
+  isLoading?: boolean; // Alias for loading
   icon?: ReactNode;
 }
 
@@ -15,11 +16,14 @@ export function Button({
   size = 'md',
   fullWidth = false,
   loading = false,
+  isLoading = false,
   icon,
   className = '',
   disabled,
   ...props
 }: ButtonProps) {
+  // Support both loading and isLoading props
+  const isLoadingState = loading || isLoading;
   const baseStyles = `
     inline-flex items-center justify-center gap-2 font-semibold rounded-2xl 
     transition-all duration-200 ease-out
@@ -72,10 +76,10 @@ export function Button({
         ${fullWidth ? 'w-full' : ''} 
         ${className}
       `}
-      disabled={disabled || loading}
+      disabled={disabled || isLoadingState}
       {...props}
     >
-      {loading ? (
+      {isLoadingState ? (
         <>
           <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
             <circle 
