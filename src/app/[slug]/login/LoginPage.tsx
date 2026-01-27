@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowRightIcon, PhoneIcon, LockClosedIcon, UserIcon } from '@heroicons/react/24/outline';
+import { ArrowRightIcon, PhoneIcon, LockClosedIcon, UserIcon, EnvelopeIcon } from '@heroicons/react/24/outline';
 import { Button } from '@/components/ui/Button';
 import { registerCustomer, loginCustomer, saveSession } from '@/lib/auth';
 import type { Business } from '@/types/database';
@@ -18,6 +18,7 @@ export function LoginPage({ business }: LoginPageProps) {
   const [phone, setPhone] = useState('');
   const [pin, setPin] = useState('');
   const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -39,7 +40,7 @@ export function LoginPage({ business }: LoginPageProps) {
           return;
         }
 
-        const result = await registerCustomer(business.id, phone, name, pin);
+        const result = await registerCustomer(business.id, phone, name, pin, email || undefined);
         
         if (!result.success) {
           setError(result.error || 'שגיאה ביצירת חשבון');
@@ -153,17 +154,30 @@ export function LoginPage({ business }: LoginPageProps) {
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
           {mode === 'register' && (
-            <div className="relative">
-              <UserIcon className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="שם מלא"
-                className="w-full pr-12 pl-4 py-4 bg-white border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                required={mode === 'register'}
-              />
-            </div>
+            <>
+              <div className="relative">
+                <UserIcon className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="שם מלא"
+                  className="w-full pr-12 pl-4 py-4 bg-white border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  required
+                />
+              </div>
+              <div className="relative">
+                <EnvelopeIcon className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="אימייל (לאיפוס סיסמה)"
+                  className="w-full pr-12 pl-4 py-4 bg-white border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  dir="ltr"
+                />
+              </div>
+            </>
           )}
 
           <div className="relative">
