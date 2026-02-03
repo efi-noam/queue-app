@@ -60,14 +60,34 @@ export function AuthFlow({ businessId, businessSlug, businessName, onAuthenticat
   
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [debugInfo, setDebugInfo] = useState('');
 
   // Check biometric support on mount
   useEffect(() => {
     async function checkSupport() {
-      const { platformAuthenticatorAvailable } = await checkBiometricSupport();
-      console.log('Biometric support check:', platformAuthenticatorAvailable);
-      setHasBiometricSupport(platformAuthenticatorAvailable);
-      setBiometricCheckDone(true);
+      try {
+        // Check if WebAuthn API exists
+        const hasWebAuthn = typeof window !== 'undefined' && !!window.PublicKeyCredential;
+        
+        if (!hasWebAuthn) {
+          setDebugInfo('WebAuthn API not available');
+          setBiometricCheckDone(true);
+          return;
+        }
+
+        // Check platform authenticator
+        const platformAuthenticatorAvailable = 
+          await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+        
+        setDebugInfo(`WebAuthn: ✓ | Platform Auth: ${platformAuthenticatorAvailable ? '✓' : '✗'}`);
+        console.log('Biometric support check:', platformAuthenticatorAvailable);
+        setHasBiometricSupport(platformAuthenticatorAvailable);
+        setBiometricCheckDone(true);
+      } catch (err) {
+        console.error('Biometric check error:', err);
+        setDebugInfo(`Error: ${err instanceof Error ? err.message : 'Unknown'}`);
+        setBiometricCheckDone(true);
+      }
     }
     checkSupport();
   }, []);
@@ -154,17 +174,22 @@ export function AuthFlow({ businessId, businessSlug, businessName, onAuthenticat
   const handleBiometricChoice = async (enableBiometric: boolean) => {
     setIsLoading(true);
     setError('');
+    setDebugInfo('Starting biometric setup...');
 
     try {
       if (enableBiometric) {
         // First create the customer
+        setDebugInfo('Creating customer...');
         const result = await registerCustomer(businessId, phone, name, '0000', email || undefined);
         
         if (!result.success || !result.customer) {
           setError(result.error || 'שגיאה ביצירת חשבון');
+          setDebugInfo(`Customer creation failed: ${result.error}`);
           setIsLoading(false);
           return;
         }
+
+        setDebugInfo(`Customer created: ${result.customer.id.slice(0, 8)}... Registering passkey...`);
 
         // Then register passkey
         const passkeyResult = await registerPasskey(
@@ -172,6 +197,8 @@ export function AuthFlow({ businessId, businessSlug, businessName, onAuthenticat
           name,
           phone
         );
+
+        setDebugInfo(`Passkey result: ${passkeyResult.success ? 'SUCCESS' : passkeyResult.error}`);
 
         if (passkeyResult.success) {
           // Save session and complete
@@ -190,9 +217,11 @@ export function AuthFlow({ businessId, businessSlug, businessName, onAuthenticat
           });
         } else if (passkeyResult.error === 'cancelled') {
           // User cancelled, fall back to PIN
+          setDebugInfo('User cancelled biometric, going to PIN');
           setStep('pin_setup');
         } else {
-          setError('שגיאה בהפעלת זיהוי ביומטרי');
+          setError(`שגיאה בהפעלת זיהוי ביומטרי: ${passkeyResult.error}`);
+          setDebugInfo(`Passkey error: ${passkeyResult.error}`);
           setStep('pin_setup');
         }
       } else {
@@ -202,6 +231,7 @@ export function AuthFlow({ businessId, businessSlug, businessName, onAuthenticat
     } catch (err) {
       console.error('Biometric setup error:', err);
       setError('שגיאה בהפעלת זיהוי ביומטרי');
+      setDebugInfo(`Exception: ${err instanceof Error ? err.message : 'Unknown'}`);
       setStep('pin_setup');
     } finally {
       setIsLoading(false);
@@ -443,6 +473,13 @@ export function AuthFlow({ businessId, businessSlug, businessName, onAuthenticat
 
   return (
     <div className="space-y-5 animate-slide-up">
+      {/* Debug info - TEMPORARY */}
+      {debugInfo && (
+        <div className="bg-yellow-100 border border-yellow-300 rounded-lg p-2 text-xs text-yellow-800 text-center">
+          🔧 Debug: {debugInfo}
+        </div>
+      )}
+
       {/* Back button */}
       {step !== 'phone' && (
         <button

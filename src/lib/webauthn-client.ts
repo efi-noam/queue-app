@@ -35,6 +35,8 @@ export async function registerPasskey(
   customerPhone: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    console.log('[Passkey] Starting registration for customer:', customerId);
+    
     // Get registration options from server
     const optionsRes = await fetch('/api/webauthn/register-options', {
       method: 'POST',
@@ -44,13 +46,16 @@ export async function registerPasskey(
 
     if (!optionsRes.ok) {
       const error = await optionsRes.json();
-      return { success: false, error: error.error || 'Failed to get options' };
+      console.error('[Passkey] Failed to get options:', error);
+      return { success: false, error: `options: ${error.error || 'Failed'}` };
     }
 
     const options = await optionsRes.json();
+    console.log('[Passkey] Got options, starting registration ceremony');
 
     // Start the registration ceremony (this triggers Face ID / Touch ID)
     const registrationResponse = await startRegistration(options);
+    console.log('[Passkey] Registration ceremony complete, verifying...');
 
     // Verify with server
     const verifyRes = await fetch('/api/webauthn/register-verify', {
@@ -61,19 +66,22 @@ export async function registerPasskey(
 
     if (!verifyRes.ok) {
       const error = await verifyRes.json();
-      return { success: false, error: error.error || 'Registration failed' };
+      console.error('[Passkey] Verification failed:', error);
+      return { success: false, error: `verify: ${error.error || 'Failed'}` };
     }
 
+    console.log('[Passkey] Registration successful!');
     return { success: true };
   } catch (error: unknown) {
-    console.error('Passkey registration error:', error);
+    console.error('[Passkey] Registration error:', error);
     
     // Handle user cancellation
     if (error instanceof Error && error.name === 'NotAllowedError') {
       return { success: false, error: 'cancelled' };
     }
     
-    return { success: false, error: 'Registration failed' };
+    const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+    return { success: false, error: `exception: ${errorMsg}` };
   }
 }
 
