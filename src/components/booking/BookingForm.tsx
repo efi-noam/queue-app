@@ -240,6 +240,9 @@ export function BookingForm({ businessId, businessSlug, businessName, onSubmit, 
       {/* Step 1: Phone Number */}
       {mode === 'phone' && (
         <>
+          <p className="text-gray-600 text-sm text-right mb-2">
+            הזן את מספר הטלפון שלך כדי להמשיך בהזמנה
+          </p>
           <div className="relative">
             <label 
               htmlFor="phone" 

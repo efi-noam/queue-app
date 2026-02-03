@@ -6,10 +6,10 @@ import { ArrowRightIcon, CheckIcon, SparklesIcon } from '@heroicons/react/24/out
 import { ServicesList } from '@/components/business/ServicesList';
 import { DatePicker } from '@/components/booking/DatePicker';
 import { TimeSlots } from '@/components/booking/TimeSlots';
-import { BookingForm } from '@/components/booking/BookingForm';
-import { getAvailableTimeSlots, getOrCreateCustomer, createAppointment } from '@/lib/api';
-import { getSession } from '@/lib/auth';
-import type { Business, Service, BusinessHours, BookingFormData, TimeSlot, Customer } from '@/types/database';
+import { AuthFlow } from '@/components/booking/AuthFlow';
+import { getAvailableTimeSlots, createAppointment } from '@/lib/api';
+import { getSession, saveSession } from '@/lib/auth';
+import type { Business, Service, BusinessHours, BookingFormData, TimeSlot } from '@/types/database';
 
 // Theme configurations
 const themes = {
@@ -230,37 +230,28 @@ export function BookingFlow({ business, services, businessHours }: BookingFlowPr
     }
   };
 
-  const handleFormSubmit = async (formData: Pick<BookingFormData, 'customer_name' | 'customer_phone'> & { existingCustomer?: Customer }) => {
+  const handleAuthComplete = async (customer: { id: string; name: string; phone: string; email?: string }) => {
+    // User authenticated, now create the booking
     if (!selectedService || !selectedDate || !selectedTime) return;
 
     setIsSubmitting(true);
     
     try {
-      let customerId: string;
+      // Update session state
+      setSession({
+        customerId: customer.id,
+        customerName: customer.name,
+        phone: customer.phone,
+      });
 
-      if (formData.existingCustomer) {
-        // Use existing customer (already verified via PIN)
-        customerId = formData.existingCustomer.id;
-        
-        // Update session state
-        setSession({
-          customerId: formData.existingCustomer.id,
-          customerName: formData.existingCustomer.name,
-          phone: formData.existingCustomer.phone,
-        });
-      } else {
-        // Create new customer
-        const customer = await getOrCreateCustomer(
-          business.id,
-          formData.customer_phone,
-          formData.customer_name
-        );
-
-        if (!customer) {
-          throw new Error('Failed to create customer');
-        }
-        customerId = customer.id;
-      }
+      // Also save to auth module
+      saveSession({
+        customerId: customer.id,
+        customerName: customer.name,
+        phone: customer.phone,
+        email: customer.email,
+        businessId: business.id,
+      });
 
       // Calculate end time
       const [hours, mins] = selectedTime.split(':').map(Number);
@@ -272,7 +263,7 @@ export function BookingFlow({ business, services, businessHours }: BookingFlowPr
       // Create appointment
       const appointment = await createAppointment(
         business.id,
-        customerId,
+        customer.id,
         selectedService.id,
         selectedDate,
         selectedTime,
@@ -288,8 +279,8 @@ export function BookingFlow({ business, services, businessHours }: BookingFlowPr
         service_id: selectedService.id,
         date: selectedDate,
         time: selectedTime,
-        customer_name: formData.customer_name,
-        customer_phone: formData.customer_phone,
+        customer_name: customer.name,
+        customer_phone: customer.phone,
       };
 
       setBookingData(fullBookingData);
@@ -526,9 +517,14 @@ export function BookingFlow({ business, services, businessHours }: BookingFlowPr
               <span className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
                 <span className="text-lg">👤</span>
               </span>
-              פרטי התקשרות
+              הזדהות
             </h2>
-            <BookingForm businessId={business.id} businessSlug={business.slug} businessName={business.name} onSubmit={handleFormSubmit} isLoading={isSubmitting} />
+            <AuthFlow 
+              businessId={business.id} 
+              businessSlug={business.slug} 
+              businessName={business.name} 
+              onAuthenticated={handleAuthComplete}
+            />
           </div>
         )}
 
