@@ -54,6 +54,7 @@ export function AuthFlow({ businessId, businessSlug, businessName, onAuthenticat
   
   const [existingCustomer, setExistingCustomer] = useState<ExistingCustomer | null>(null);
   const [hasBiometricSupport, setHasBiometricSupport] = useState(false);
+  const [biometricCheckDone, setBiometricCheckDone] = useState(false);
   const [hasPasskeyRegistered, setHasPasskeyRegistered] = useState(false);
   const [maskedEmail, setMaskedEmail] = useState('');
   
@@ -64,7 +65,9 @@ export function AuthFlow({ businessId, businessSlug, businessName, onAuthenticat
   useEffect(() => {
     async function checkSupport() {
       const { platformAuthenticatorAvailable } = await checkBiometricSupport();
+      console.log('Biometric support check:', platformAuthenticatorAvailable);
       setHasBiometricSupport(platformAuthenticatorAvailable);
+      setBiometricCheckDone(true);
     }
     checkSupport();
   }, []);
@@ -124,9 +127,20 @@ export function AuthFlow({ businessId, businessSlug, businessName, onAuthenticat
     setError('');
 
     try {
+      // If biometric check hasn't completed yet, do it now
+      let biometricAvailable = hasBiometricSupport;
+      if (!biometricCheckDone) {
+        const { platformAuthenticatorAvailable } = await checkBiometricSupport();
+        biometricAvailable = platformAuthenticatorAvailable;
+        setHasBiometricSupport(platformAuthenticatorAvailable);
+        setBiometricCheckDone(true);
+      }
+      
+      console.log('Biometric available:', biometricAvailable);
+      
       // If device supports biometric, go to biometric setup
       // Otherwise, go straight to PIN setup
-      if (hasBiometricSupport) {
+      if (biometricAvailable) {
         setStep('biometric_setup');
       } else {
         setStep('pin_setup');
