@@ -190,10 +190,10 @@ export function BookingFlow({ business, services, businessHours }: BookingFlowPr
     setIsSubmitting(true);
     
     try {
-      // Calculate end time
+      // Calculate end time (wrap around midnight)
       const [hours, mins] = time.split(':').map(Number);
       const endMinutes = hours * 60 + mins + selectedService.duration;
-      const endHours = Math.floor(endMinutes / 60);
+      const endHours = Math.floor(endMinutes / 60) % 24;
       const endMins = endMinutes % 60;
       const endTime = `${endHours.toString().padStart(2, '0')}:${endMins.toString().padStart(2, '0')}`;
 
@@ -253,10 +253,10 @@ export function BookingFlow({ business, services, businessHours }: BookingFlowPr
         businessId: business.id,
       });
 
-      // Calculate end time
+      // Calculate end time (wrap around midnight)
       const [hours, mins] = selectedTime.split(':').map(Number);
       const endMinutes = hours * 60 + mins + selectedService.duration;
-      const endHours = Math.floor(endMinutes / 60);
+      const endHours = Math.floor(endMinutes / 60) % 24;
       const endMins = endMinutes % 60;
       const endTime = `${endHours.toString().padStart(2, '0')}:${endMins.toString().padStart(2, '0')}`;
 

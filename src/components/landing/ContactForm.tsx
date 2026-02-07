@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { SparklesIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
+import { SparklesIcon, CheckCircleIcon, ChatBubbleLeftRightIcon } from '@heroicons/react/24/outline';
 import { createLead } from '@/lib/platform-api';
 
 export function ContactForm() {
@@ -48,19 +48,23 @@ export function ContactForm() {
           <CheckCircleIcon className="w-8 h-8 text-green-400" />
         </div>
         <h2 className="text-2xl sm:text-3xl font-bold mb-4 text-white">
-          תודה רבה!
+          מעולה! קיבלנו
         </h2>
-        <p className="text-gray-400 mb-6">
-          קיבלנו את הפרטים שלך.
-          <br />
-          נחזור אליך תוך 24 שעות.
+        <p className="text-gray-400 mb-4">
+          ניצור איתך קשר בוואטסאפ תוך מספר דקות כדי להקים את הדף שלך.
         </p>
-        <button
-          onClick={() => setIsSuccess(false)}
-          className="text-blue-400 hover:underline"
+        <p className="text-gray-500 text-sm mb-6">
+          לא רואים הודעה? שלחו לנו ישירות:
+        </p>
+        <a
+          href="https://wa.me/972505999662?text=היי, השארתי פרטים באתר ורוצה להקים דף עסקי"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 px-6 py-3 bg-green-500 text-white rounded-xl font-bold hover:bg-green-600 transition-all"
         >
-          שלח פנייה נוספת
-        </button>
+          <ChatBubbleLeftRightIcon className="w-5 h-5" />
+          שלחו לנו בוואטסאפ
+        </a>
       </div>
     );
   }
@@ -74,7 +78,7 @@ export function ContactForm() {
         מוכנים להתחיל?
       </h2>
       <p className="text-gray-400 mb-8">
-        השאירו פרטים ונחזור אליכם תוך 24 שעות עם הדגמה אישית
+        השאירו פרטים ונקים לכם את הדף תוך דקות
       </p>
 
       <form onSubmit={handleSubmit} className="space-y-4 text-right">
@@ -124,15 +128,27 @@ export function ContactForm() {
               שולח...
             </span>
           ) : (
-            'שלחו לי פרטים'
+            'קדימה, בואו נתחיל!'
           )}
         </button>
       </form>
 
-      <p className="text-gray-500 text-sm mt-6">
-        או התקשרו אלינו: 
-        <a href="tel:0505999662" className="text-blue-400 hover:underline mr-1">050-599-9662</a>
-      </p>
+      <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3 text-sm">
+        <span className="text-gray-500">או דברו איתנו ישירות:</span>
+        <a 
+          href="https://wa.me/972505999662?text=היי, אשמח לשמוע על המערכת"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 text-green-400 hover:text-green-300 font-medium transition-colors"
+        >
+          <ChatBubbleLeftRightIcon className="w-4 h-4" />
+          שלחו הודעה בוואטסאפ
+        </a>
+        <span className="text-gray-600 hidden sm:inline">|</span>
+        <a href="tel:0505999662" className="text-blue-400 hover:text-blue-300 transition-colors">
+          050-599-9662
+        </a>
+      </div>
     </div>
   );
 }

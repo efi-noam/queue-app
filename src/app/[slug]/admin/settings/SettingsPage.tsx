@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { 
@@ -43,7 +43,8 @@ export function SettingsPage({ business, services: initialServices, businessHour
   const [activeTab, setActiveTab] = useState<'info' | 'services' | 'hours' | 'appearance'>('info');
   const [isSaving, setIsSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState('');
-  const [isUploading, setIsUploading] = useState(false);
+  const [uploadingType, setUploadingType] = useState<'logo' | 'cover' | 'gallery' | null>(null);
+  const [confirmDialog, setConfirmDialog] = useState<{ message: string; onConfirm: () => void } | null>(null);
 
   // Appearance state
   const [slug, setSlug] = useState(business.slug);
@@ -83,6 +84,28 @@ export function SettingsPage({ business, services: initialServices, businessHour
 
   // Slot interval state
   const [slotInterval, setSlotInterval] = useState(business.slot_interval || 30);
+
+  // Debounced service update - hooks must be before any conditional returns
+  const serviceUpdateTimers = useRef<Record<string, NodeJS.Timeout>>({});
+  
+  const handleUpdateService = useCallback((serviceId: string, updates: Partial<Service>) => {
+    // Update local state immediately for responsive UI
+    setServices(prev => prev.map(s => s.id === serviceId ? { ...s, ...updates } : s));
+    
+    // Clear previous timer for this service
+    if (serviceUpdateTimers.current[serviceId]) {
+      clearTimeout(serviceUpdateTimers.current[serviceId]);
+    }
+    
+    // Set new debounced timer
+    serviceUpdateTimers.current[serviceId] = setTimeout(async () => {
+      try {
+        await updateService(serviceId, updates);
+      } catch (error) {
+        console.error('Error updating service:', error);
+      }
+    }, 800);
+  }, []);
 
   // Check admin session
   useEffect(() => {
@@ -127,7 +150,7 @@ export function SettingsPage({ business, services: initialServices, businessHour
 
   const handleAddService = async () => {
     if (!newService.name || newService.price <= 0) {
-      alert('יש למלא שם ומחיר');
+      showSaveMessage('יש למלא שם ומחיר');
       return;
     }
 
@@ -146,29 +169,22 @@ export function SettingsPage({ business, services: initialServices, businessHour
     }
   };
 
-  const handleUpdateService = async (serviceId: string, updates: Partial<Service>) => {
-    try {
-      const result = await updateService(serviceId, updates);
-      if (result) {
-        setServices(prev => prev.map(s => s.id === serviceId ? { ...s, ...updates } : s));
-      }
-    } catch (error) {
-      console.error('Error updating service:', error);
-    }
-  };
-
-  const handleDeleteService = async (serviceId: string) => {
-    if (!confirm('האם למחוק את השירות?')) return;
-
-    try {
-      const success = await deleteService(serviceId);
-      if (success) {
-        setServices(prev => prev.filter(s => s.id !== serviceId));
-        showSaveMessage('השירות נמחק');
-      }
-    } catch (error) {
-      console.error('Error deleting service:', error);
-    }
+  const handleDeleteService = (serviceId: string) => {
+    setConfirmDialog({
+      message: 'האם למחוק את השירות?',
+      onConfirm: async () => {
+        setConfirmDialog(null);
+        try {
+          const success = await deleteService(serviceId);
+          if (success) {
+            setServices(prev => prev.filter(s => s.id !== serviceId));
+            showSaveMessage('השירות נמחק');
+          }
+        } catch (error) {
+          console.error('Error deleting service:', error);
+        }
+      },
+    });
   };
 
   const handleSaveHours = async () => {
@@ -199,7 +215,7 @@ export function SettingsPage({ business, services: initialServices, businessHour
     const file = e.target.files?.[0];
     if (!file) return;
 
-    setIsUploading(true);
+    setUploadingType(type);
     try {
       const url = await uploadImage(file, business.id, type);
       if (!url) {
@@ -226,20 +242,24 @@ export function SettingsPage({ business, services: initialServices, businessHour
       console.error('Error uploading:', error);
       showSaveMessage('שגיאה בהעלאה');
     } finally {
-      setIsUploading(false);
+      setUploadingType(null);
     }
   };
 
-  const handleDeleteGalleryImage = async (image: GalleryImage) => {
-    if (!confirm('למחוק את התמונה?')) return;
-
-    try {
-      await deleteGalleryImage(image.id);
-      setGallery(prev => prev.filter(g => g.id !== image.id));
-      showSaveMessage('התמונה נמחקה');
-    } catch (error) {
-      console.error('Error deleting gallery image:', error);
-    }
+  const handleDeleteGalleryImage = (image: GalleryImage) => {
+    setConfirmDialog({
+      message: 'למחוק את התמונה?',
+      onConfirm: async () => {
+        setConfirmDialog(null);
+        try {
+          await deleteGalleryImage(image.id);
+          setGallery(prev => prev.filter(g => g.id !== image.id));
+          showSaveMessage('התמונה נמחקה');
+        } catch (error) {
+          console.error('Error deleting gallery image:', error);
+        }
+      },
+    });
   };
 
   const handleSaveSlug = async () => {
@@ -278,6 +298,29 @@ export function SettingsPage({ business, services: initialServices, businessHour
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white pb-20">
+      {/* Confirm Dialog */}
+      {confirmDialog && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm px-4">
+          <div className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl animate-scale-in text-center">
+            <p className="text-gray-900 font-medium text-lg mb-6">{confirmDialog.message}</p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setConfirmDialog(null)}
+                className="flex-1 py-3 rounded-xl bg-gray-100 text-gray-700 font-medium hover:bg-gray-200 transition-colors"
+              >
+                ביטול
+              </button>
+              <button
+                onClick={confirmDialog.onConfirm}
+                className="flex-1 py-3 rounded-xl bg-red-500 text-white font-medium hover:bg-red-600 transition-colors"
+              >
+                מחק
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <header className="bg-white/80 backdrop-blur-xl border-b border-gray-100 sticky top-0 z-50">
         <div className="flex items-center justify-between px-4 py-4 max-w-lg mx-auto">
@@ -744,7 +787,7 @@ export function SettingsPage({ business, services: initialServices, businessHour
                   <Button
                     variant="outline"
                     fullWidth
-                    isLoading={isUploading}
+                    isLoading={uploadingType === 'logo'}
                     className="cursor-pointer"
                     onClick={(e) => {
                       e.preventDefault();
@@ -778,7 +821,7 @@ export function SettingsPage({ business, services: initialServices, businessHour
                   <Button
                     variant="outline"
                     fullWidth
-                    isLoading={isUploading}
+                    isLoading={uploadingType === 'cover'}
                     className="cursor-pointer"
                     onClick={(e) => {
                       e.preventDefault();
@@ -825,7 +868,7 @@ export function SettingsPage({ business, services: initialServices, businessHour
                 <Button
                   variant="outline"
                   fullWidth
-                  isLoading={isUploading}
+                  isLoading={uploadingType === 'gallery'}
                   className="cursor-pointer"
                   onClick={(e) => {
                     e.preventDefault();

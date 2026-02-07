@@ -163,11 +163,13 @@ export function AdminDashboard({ business, services }: AdminDashboardProps) {
   };
 
   const isToday = formatDateLocal(selectedDate) === formatDateLocal(new Date());
-  const isTomorrow = formatDateLocal(selectedDate) === formatDateLocal(new Date(Date.now() + 86400000));
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const isTomorrow = formatDateLocal(selectedDate) === formatDateLocal(tomorrow);
 
   // Get appointments for selected date
   const selectedDateStr = formatDateLocal(selectedDate);
-  const dayAppointments = appointments.filter(apt => apt.date === selectedDateStr);
+  const dayAppointments = appointments.filter(apt => apt.date === selectedDateStr && apt.status !== 'cancelled');
 
   // Get business hours for selected day
   const dayOfWeek = selectedDate.getDay();

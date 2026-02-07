@@ -12,10 +12,26 @@ export async function POST(request: NextRequest) {
   );
 
   try {
-    const { businessId, isActive } = await request.json();
+    const { businessId, isActive, platformAdminId } = await request.json();
 
     if (!businessId) {
       return NextResponse.json({ error: 'Missing businessId' }, { status: 400 });
+    }
+
+    // Verify authorization - must be a valid platform admin
+    if (!platformAdminId) {
+      return NextResponse.json({ error: 'Unauthorized - missing admin ID' }, { status: 403 });
+    }
+
+    const { data: admin, error: adminError } = await supabase
+      .from('platform_admins')
+      .select('id')
+      .eq('id', platformAdminId)
+      .eq('is_active', true)
+      .single();
+
+    if (adminError || !admin) {
+      return NextResponse.json({ error: 'Unauthorized - invalid admin' }, { status: 403 });
     }
 
     const { error } = await supabase

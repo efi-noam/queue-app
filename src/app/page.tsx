@@ -4,22 +4,24 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { 
   CalendarDaysIcon, 
-  DevicePhoneMobileIcon, 
   BellAlertIcon,
   ClockIcon,
   SparklesIcon,
   CheckCircleIcon,
   XMarkIcon,
-  PhoneIcon,
   ArrowLeftIcon,
   ExclamationTriangleIcon,
   FireIcon,
   ShieldCheckIcon,
+  ChevronDownIcon,
+  ChatBubbleLeftRightIcon,
+  StarIcon,
 } from '@heroicons/react/24/outline';
 import { ContactForm } from '@/components/landing/ContactForm';
 
 export default function LandingPage() {
   const [currentScenario, setCurrentScenario] = useState(0);
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
   
   const scenarios = [
     { time: '10:32', text: 'לקוח מתקשר בזמן שאתה באמצע תספורת...', result: 'לא ענית. הוא הלך למתחרה.' },
@@ -28,10 +30,37 @@ export default function LandingPage() {
     { time: '09:00', text: 'לקוח ביטל ברגע האחרון...', result: 'שעה ריקה שאי אפשר למלא.' },
   ];
 
+  const faqs = [
+    {
+      question: 'כמה זמן לוקח להקים את המערכת?',
+      answer: 'פחות מ-5 דקות. אנחנו מקימים לכם את הדף, מעלים את השירותים, הלוגו, ושעות הפעילות - ואתם מוכנים לקבל הזמנות.',
+    },
+    {
+      question: 'האם הלקוחות שלי צריכים להוריד אפליקציה?',
+      answer: 'ממש לא. הלקוח פשוט פותח לינק בדפדפן, בוחר שירות, תאריך ושעה - וסגור. בלי הורדות, בלי הרשמות מסובכות.',
+    },
+    {
+      question: 'מה קורה אם לקוח מבטל תור?',
+      answer: 'התור מתפנה אוטומטית וזמין שוב להזמנה. אתם מקבלים התראה על כל ביטול ויכולים לראות את כל השינויים ביומן.',
+    },
+    {
+      question: 'אפשר לשנות את שעות הפעילות?',
+      answer: 'כן, בכל רגע. אתם שולטים בשעות פעילות, הפסקות, ימי חופש, וחריגים ליום ספציפי - הכל דרך לוח הבקרה.',
+    },
+    {
+      question: 'אני לא טכנולוגי, זה מתאים לי?',
+      answer: 'בהחלט. אם אתם יודעים לשלוח הודעת וואטסאפ, אתם יודעים להשתמש במערכת. והצוות שלנו זמין לכל שאלה.',
+    },
+    {
+      question: 'אפשר לבטל בכל עת?',
+      answer: 'כמובן. אין חוזים, אין התחייבויות. לא מתאים? מבטלים בקליק. בלי שאלות.',
+    },
+  ];
+
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentScenario((prev) => (prev + 1) % scenarios.length);
-    }, 4000);
+    }, 6000);
     return () => clearInterval(interval);
   }, [scenarios.length]);
 
@@ -59,6 +88,9 @@ export default function LandingPage() {
             <Link href="#pricing" className="hidden sm:block text-gray-400 hover:text-white transition-colors">
               מחירים
             </Link>
+            <Link href="#faq" className="hidden sm:block text-gray-400 hover:text-white transition-colors">
+              שאלות
+            </Link>
             <Link 
               href="#contact"
               className="px-5 py-2.5 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl font-medium hover:shadow-lg hover:shadow-blue-500/30 transition-all hover:scale-105"
@@ -69,7 +101,7 @@ export default function LandingPage() {
         </div>
       </nav>
 
-      {/* Hero Section - Direct & Aggressive */}
+      {/* Hero Section */}
       <section className="relative z-10 pt-12 pb-16 px-4">
         <div className="max-w-6xl mx-auto">
           {/* Urgency Banner */}
@@ -117,14 +149,26 @@ export default function LandingPage() {
               </div>
 
               {/* Main CTA */}
-              <Link
-                href="#contact"
-                className="group inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-green-500 to-emerald-600 rounded-2xl font-bold text-lg shadow-xl shadow-green-500/30 hover:shadow-2xl hover:shadow-green-500/40 transition-all hover:scale-105"
-              >
-                <SparklesIcon className="w-6 h-6" />
-                תנו ללקוחות לקבוע לבד
-                <ArrowLeftIcon className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
-              </Link>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                <Link
+                  href="#contact"
+                  className="group inline-flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-green-500 to-emerald-600 rounded-2xl font-bold text-lg shadow-xl shadow-green-500/30 hover:shadow-2xl hover:shadow-green-500/40 transition-all hover:scale-105"
+                >
+                  <SparklesIcon className="w-6 h-6" />
+                  תנו ללקוחות לקבוע לבד
+                  <ArrowLeftIcon className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+                </Link>
+
+                {/* Live Demo Link */}
+                <Link
+                  href="/david-david"
+                  target="_blank"
+                  className="inline-flex items-center justify-center gap-2 px-6 py-4 border border-white/20 rounded-2xl font-medium text-gray-300 hover:text-white hover:border-white/40 transition-all"
+                >
+                  <CalendarDaysIcon className="w-5 h-5" />
+                  ראו דוגמא חיה
+                </Link>
+              </div>
 
               {/* Trust */}
               <div className="mt-6 flex items-center gap-4 justify-center lg:justify-start text-sm text-gray-500">
@@ -168,18 +212,8 @@ export default function LandingPage() {
                       </div>
                     </div>
                     
-                    {/* Quick Actions */}
+                    {/* Content */}
                     <div className="p-4">
-                      <div className="flex gap-2 mb-4">
-                        <button className="flex-1 py-2 bg-green-500 rounded-xl text-white text-xs font-bold flex items-center justify-center gap-1">
-                          <PhoneIcon className="w-3 h-3" />
-                          התקשר
-                        </button>
-                        <button className="flex-1 py-2 bg-blue-500 rounded-xl text-white text-xs font-bold">
-                          📍 נווט
-                        </button>
-                      </div>
-                      
                       {/* Services */}
                       <p className="text-gray-400 text-xs mb-2">בחר שירות:</p>
                       <div className="space-y-2">
@@ -203,29 +237,29 @@ export default function LandingPage() {
                       <p className="text-gray-400 text-xs mb-2 mt-4">בחר תאריך:</p>
                       <div className="grid grid-cols-4 gap-1">
                         {['היום', 'מחר', 'רביעי', 'חמישי'].map((day, i) => (
-                          <button 
+                          <div 
                             key={day}
-                            className={`py-2 rounded-lg text-xs font-medium ${i === 1 ? 'bg-blue-500 text-white' : 'bg-white/5 text-gray-400'}`}
+                            className={`py-2 rounded-lg text-xs font-medium text-center ${i === 1 ? 'bg-blue-500 text-white' : 'bg-white/5 text-gray-400'}`}
                           >
                             {day}
-                          </button>
+                          </div>
                         ))}
                       </div>
                       
                       {/* CTA */}
-                      <button className="w-full mt-4 py-3 bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl text-white font-bold text-sm shadow-lg">
+                      <div className="w-full mt-4 py-3 bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl text-white font-bold text-sm shadow-lg text-center">
                         קבע תור ל-10:00 ✓
-                      </button>
+                      </div>
                     </div>
                     
-                    {/* Success Toast */}
-                    <div className="absolute bottom-3 left-3 right-3 bg-green-500/90 backdrop-blur rounded-xl p-3 flex items-center gap-3 animate-bounce">
+                    {/* Success Toast - static, not bouncing */}
+                    <div className="absolute bottom-3 left-3 right-3 bg-green-500/90 backdrop-blur rounded-xl p-3 flex items-center gap-3">
                       <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center flex-shrink-0">
                         <CheckCircleIcon className="w-5 h-5 text-green-500" />
                       </div>
                       <div className="text-right">
-                        <p className="text-white text-xs font-bold">נקבע! 🎉</p>
-                        <p className="text-white/80 text-[10px]">מחר 10:00 • תזכורת תשלח</p>
+                        <p className="text-white text-xs font-bold">התור נקבע!</p>
+                        <p className="text-white/80 text-[10px]">מחר 10:00 - תזכורת תשלח</p>
                       </div>
                     </div>
                   </div>
@@ -244,9 +278,29 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Business Types Bar */}
-      <section className="relative z-10 py-6 border-y border-white/10 bg-white/5">
+      {/* Social Proof */}
+      <section className="relative z-10 py-10 border-y border-white/10 bg-white/5">
         <div className="max-w-6xl mx-auto px-4">
+          <div className="grid sm:grid-cols-3 gap-8 text-center mb-8">
+            <div>
+              <p className="text-3xl font-black text-white">30+</p>
+              <p className="text-gray-400 text-sm mt-1">עסקים פעילים</p>
+            </div>
+            <div>
+              <p className="text-3xl font-black text-white">1,500+</p>
+              <p className="text-gray-400 text-sm mt-1">תורים שנקבעו</p>
+            </div>
+            <div>
+              <p className="text-3xl font-black text-white">4.9</p>
+              <div className="flex items-center justify-center gap-1 mt-1">
+                {[1,2,3,4,5].map(i => (
+                  <StarIcon key={i} className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+                ))}
+              </div>
+            </div>
+          </div>
+          
+          {/* Business Types */}
           <p className="text-center text-gray-500 text-sm mb-4">מושלם עבור:</p>
           <div className="flex flex-wrap items-center justify-center gap-3">
             {[
@@ -262,6 +316,29 @@ export default function LandingPage() {
                 <span className="text-gray-400">{name}</span>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials */}
+      <section className="relative z-10 py-16 px-4">
+        <div className="max-w-5xl mx-auto">
+          <div className="grid md:grid-cols-3 gap-6">
+            <Testimonial
+              name="אבי כהן"
+              role="מספרה בתל אביב"
+              text="מאז שהתחלתי עם TorLi אני לא מרים טלפון בזמן עבודה. הלקוחות קובעים לבד ואני מתרכז בעבודה."
+            />
+            <Testimonial
+              name="מיכל לוי"
+              role="קליניקת עיסוי"
+              text="הייתי מפספסת שיחות בזמן טיפולים. עכשיו ההזמנות נכנסות לבד, גם ב-3 בלילה."
+            />
+            <Testimonial
+              name="דני שמש"
+              role="מאמן כושר"
+              text="פשוט שלחתי ללקוחות את הלינק בקבוצת הוואטסאפ. תוך יומיים כל התורים של השבוע היו מלאים."
+            />
           </div>
         </div>
       </section>
@@ -305,7 +382,7 @@ export default function LandingPage() {
               <div className="space-y-4">
                 <Benefit text="לקוחות קובעים לבד - אתם עובדים" />
                 <Benefit text="הזמנות נכנסות גם ב-3 בלילה" />
-                <Benefit text="תזכורות אוטומטיות = פחות ביטולים" />
+                <Benefit text="פחות ביטולים - הלקוח מחויב לתור" />
                 <Benefit text="רואים את כל ההיסטוריה של כל לקוח" />
                 <Benefit text="הכל ביומן אחד מסודר" />
                 <Benefit text="מקבלים התראה על כל הזמנה חדשה" />
@@ -333,7 +410,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Features - Simplified */}
+      {/* Features */}
       <section className="relative z-10 py-20 px-4 bg-gradient-to-b from-transparent via-blue-950/20 to-transparent">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-12">
@@ -354,21 +431,34 @@ export default function LandingPage() {
             />
             <FeatureCard
               icon={BellAlertIcon}
-              title="תזכורות אוטומטיות"
-              description="הודעת WhatsApp או SMS יום לפני ושעה לפני התור. הלקוח לא שוכח, אתם לא מפסידים."
-              highlight="פחות ביטולים"
+              title="התראות בזמן אמת"
+              description="מקבלים התראה על כל הזמנה חדשה, ביטול, או שינוי. תמיד יודעים מה קורה ביומן."
+              highlight="בזמן אמת"
             />
             <FeatureCard
               icon={ClockIcon}
               title="יומן חכם"
-              description="רואים את כל התורים במקום אחד. מקבלים התראה על כל הזמנה חדשה. שולטים בכל רגע."
-              highlight="זמין 24/7"
+              description="רואים את כל התורים במקום אחד. שולטים בשעות, הפסקות, ימי חופש - הכל בכף היד."
+              highlight="שליטה מלאה"
             />
+          </div>
+
+          {/* Live Demo CTA */}
+          <div className="mt-10 text-center">
+            <Link
+              href="/david-david"
+              target="_blank"
+              className="inline-flex items-center gap-2 text-blue-400 hover:text-blue-300 font-medium transition-colors"
+            >
+              <CalendarDaysIcon className="w-5 h-5" />
+              רוצים לראות איך זה נראה? לחצו כאן לדוגמא חיה
+              <ArrowLeftIcon className="w-4 h-4" />
+            </Link>
           </div>
         </div>
       </section>
 
-      {/* How It Works - Super Simple */}
+      {/* How It Works */}
       <section className="relative z-10 py-20 px-4">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
@@ -378,14 +468,14 @@ export default function LandingPage() {
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
-            <Step number="1" title="נרשמים" description="ממלאים שם העסק, טלפון, ושירותים שאתם מציעים." />
-            <Step number="2" title="מקבלים לינק" description="הלינק שלכם מוכן. משתפים אותו עם הלקוחות." />
-            <Step number="3" title="מקבלים הזמנות" description="הלקוחות קובעים לבד. אתם מקבלים התראה." />
+            <Step number="1" title="שלחו הודעה" description="שלחו לנו הודעה בוואטסאפ עם שם העסק, שירותים, ושעות פעילות." />
+            <Step number="2" title="אנחנו מקימים" description="תוך דקות הדף שלכם מוכן עם הלוגו, השירותים, והעיצוב." />
+            <Step number="3" title="משתפים ומקבלים" description="שלחו את הלינק ללקוחות. הם קובעים, אתם מקבלים התראה." />
           </div>
         </div>
       </section>
 
-      {/* Pricing - Clear */}
+      {/* Pricing */}
       <section id="pricing" className="relative z-10 py-20 px-4">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
@@ -393,7 +483,7 @@ export default function LandingPage() {
               פשוט ושקוף
             </h2>
             <p className="text-gray-400">
-              בלי חוזים. בלי הפתעות. בלי בולשיט.
+              בלי חוזים. בלי הפתעות. בלי אותיות קטנות.
             </p>
           </div>
 
@@ -403,7 +493,7 @@ export default function LandingPage() {
               <h3 className="text-xl font-bold mb-2">סטארטר</h3>
               <p className="text-gray-400 text-sm mb-6">לעסקים שמתחילים</p>
               <div className="mb-6">
-                <span className="text-5xl font-black">₪99</span>
+                <span className="text-5xl font-black">₪79</span>
                 <span className="text-gray-400">/חודש</span>
               </div>
               <ul className="space-y-3 mb-8">
@@ -421,20 +511,20 @@ export default function LandingPage() {
             </div>
 
             {/* Pro */}
-            <div className="relative bg-gradient-to-b from-blue-500/20 to-purple-500/20 backdrop-blur-xl rounded-3xl p-8 border border-blue-500/30 scale-105">
+            <div className="relative bg-gradient-to-b from-blue-500/20 to-purple-500/20 backdrop-blur-xl rounded-3xl p-8 border border-blue-500/30 md:scale-105">
               <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full text-sm font-bold">
-                ⭐ מומלץ
+                מומלץ
               </div>
               <h3 className="text-xl font-bold mb-2">פרו</h3>
-              <p className="text-gray-400 text-sm mb-6">לעסקים שרוצים יותר</p>
+              <p className="text-gray-400 text-sm mb-6">לעסקים עם ביקוש</p>
               <div className="mb-6">
-                <span className="text-5xl font-black">₪199</span>
+                <span className="text-5xl font-black">₪149</span>
                 <span className="text-gray-400">/חודש</span>
               </div>
               <ul className="space-y-3 mb-8">
                 <PricingItem text="תורים ללא הגבלה" highlight />
-                <PricingItem text="תזכורות SMS/WhatsApp" highlight />
-                <PricingItem text="סטטיסטיקות מתקדמות" />
+                <PricingItem text="ערכות עיצוב מתקדמות" highlight />
+                <PricingItem text="ניהול גלריית תמונות" />
                 <PricingItem text="תמיכה בעדיפות" />
               </ul>
               <Link
@@ -450,13 +540,46 @@ export default function LandingPage() {
           <div className="mt-12 text-center">
             <div className="inline-flex items-center gap-3 px-6 py-3 bg-green-500/10 border border-green-500/30 rounded-full">
               <ShieldCheckIcon className="w-6 h-6 text-green-500" />
-              <span className="text-green-300">30 יום ניסיון חינם • ביטול בקליק • ללא כרטיס אשראי</span>
+              <span className="text-green-300">30 יום ניסיון חינם - ביטול בקליק - ללא כרטיס אשראי</span>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Final CTA - Aggressive */}
+      {/* FAQ */}
+      <section id="faq" className="relative z-10 py-20 px-4">
+        <div className="max-w-3xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl sm:text-4xl font-black mb-4">
+              שאלות נפוצות
+            </h2>
+          </div>
+
+          <div className="space-y-3">
+            {faqs.map((faq, index) => (
+              <div
+                key={index}
+                className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden transition-all"
+              >
+                <button
+                  onClick={() => setOpenFaq(openFaq === index ? null : index)}
+                  className="w-full flex items-center justify-between p-5 text-right"
+                >
+                  <ChevronDownIcon className={`w-5 h-5 text-gray-400 flex-shrink-0 transition-transform ${openFaq === index ? 'rotate-180' : ''}`} />
+                  <span className="font-medium text-white">{faq.question}</span>
+                </button>
+                {openFaq === index && (
+                  <div className="px-5 pb-5 pt-0">
+                    <p className="text-gray-400 text-sm leading-relaxed">{faq.answer}</p>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Final CTA */}
       <section className="relative z-10 py-20 px-4 bg-gradient-to-b from-transparent via-purple-950/30 to-transparent">
         <div className="max-w-3xl mx-auto text-center">
           <h2 className="text-3xl sm:text-4xl font-black mb-6">
@@ -499,7 +622,7 @@ export default function LandingPage() {
             <span className="font-bold">TorLi</span>
           </div>
           <p className="text-gray-500 text-sm">
-            © 2025 TorLi. כל הזכויות שמורות.
+            &copy; {new Date().getFullYear()} TorLi. כל הזכויות שמורות.
           </p>
           <Link 
             href="/platform-admin/login"
@@ -509,6 +632,29 @@ export default function LandingPage() {
           </Link>
         </div>
       </footer>
+    </div>
+  );
+}
+
+// Testimonial Card
+function Testimonial({ name, role, text }: { name: string; role: string; text: string }) {
+  return (
+    <div className="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-6">
+      <div className="flex items-center gap-1 mb-4">
+        {[1,2,3,4,5].map(i => (
+          <StarIcon key={i} className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+        ))}
+      </div>
+      <p className="text-gray-300 text-sm leading-relaxed mb-4">&ldquo;{text}&rdquo;</p>
+      <div className="flex items-center gap-3">
+        <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
+          {name.charAt(0)}
+        </div>
+        <div>
+          <p className="text-white font-medium text-sm">{name}</p>
+          <p className="text-gray-500 text-xs">{role}</p>
+        </div>
+      </div>
     </div>
   );
 }

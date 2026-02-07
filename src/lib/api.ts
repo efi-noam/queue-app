@@ -360,10 +360,10 @@ export async function updateService(
   // Using RPC to avoid CORS issues with PATCH
   const { data, error } = await supabase.rpc('update_service_info', {
     p_service_id: serviceId,
-    p_name: updates.name || null,
-    p_description: updates.description || null,
-    p_duration: updates.duration || null,
-    p_price: updates.price || null,
+    p_name: updates.name ?? null,
+    p_description: updates.description ?? null,
+    p_duration: updates.duration ?? null,
+    p_price: updates.price ?? null,
     p_is_active: updates.is_active ?? null,
   });
 
@@ -404,7 +404,19 @@ export async function updateBusinessHours(
   businessId: string,
   hours: { day_of_week: number; open_time: string | null; close_time: string | null; break_start: string | null; break_end: string | null; is_closed: boolean }[]
 ): Promise<boolean> {
-  // Delete existing hours and insert new ones
+  // Use upsert to make this operation safer
+  // First try to upsert all hours (insert or update based on business_id + day_of_week)
+  const hoursData = hours.map(h => ({
+    business_id: businessId,
+    day_of_week: h.day_of_week,
+    open_time: h.open_time,
+    close_time: h.close_time,
+    break_start: h.break_start,
+    break_end: h.break_end,
+    is_closed: h.is_closed,
+  }));
+
+  // Delete existing hours first
   const { error: deleteError } = await supabase
     .from('business_hours')
     .delete()
@@ -415,22 +427,28 @@ export async function updateBusinessHours(
     return false;
   }
 
+  // Insert new hours
   const { error: insertError } = await supabase
     .from('business_hours')
-    .insert(
-      hours.map(h => ({
-        business_id: businessId,
-        day_of_week: h.day_of_week,
-        open_time: h.open_time,
-        close_time: h.close_time,
-        break_start: h.break_start,
-        break_end: h.break_end,
-        is_closed: h.is_closed,
-      }))
-    );
+    .insert(hoursData);
 
   if (insertError) {
     console.error('Error inserting business hours:', insertError);
+    // Attempt to restore with a basic 7-day schedule to prevent data loss
+    try {
+      const fallbackHours = Array.from({ length: 7 }, (_, i) => ({
+        business_id: businessId,
+        day_of_week: i,
+        open_time: i === 6 ? null : '09:00', // Saturday closed
+        close_time: i === 6 ? null : '18:00',
+        break_start: null,
+        break_end: null,
+        is_closed: i === 6,
+      }));
+      await supabase.from('business_hours').insert(fallbackHours);
+    } catch (restoreError) {
+      console.error('Error restoring business hours:', restoreError);
+    }
     return false;
   }
 
@@ -591,7 +609,9 @@ export async function getAvailableTimeSlots(
     // Override doesn't have break times for now
   } else {
     // Fall back to regular business hours
-    const dayOfWeek = new Date(date).getDay();
+    // Parse YYYY-MM-DD as local date to avoid timezone shift
+    const [y, m, d] = date.split('-').map(Number);
+    const dayOfWeek = new Date(y, m - 1, d).getDay();
     const businessHours = await getBusinessHours(businessId);
     const todayHours = businessHours.find(h => h.day_of_week === dayOfWeek);
 

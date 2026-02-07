@@ -217,10 +217,14 @@ export async function createBusinessWithOwner(
 
 export async function toggleBusinessActive(businessId: string, isActive: boolean): Promise<boolean> {
   try {
+    // Get platform admin session for authorization
+    const sessionStr = typeof window !== 'undefined' ? localStorage.getItem('platform_admin_session') : null;
+    const session = sessionStr ? JSON.parse(sessionStr) : null;
+    
     const response = await fetch('/api/toggle-business', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ businessId, isActive }),
+      body: JSON.stringify({ businessId, isActive, platformAdminId: session?.adminId }),
     });
 
     if (!response.ok) {

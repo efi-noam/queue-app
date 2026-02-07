@@ -285,6 +285,9 @@ export function AuthFlow({ businessId, businessSlug, businessName, onAuthenticat
   // Go back
   const handleBack = () => {
     setError('');
+    setPin('');
+    setResetCode('');
+    setNewPassword('');
     if (step === 'new_customer' || step === 'pin_login') {
       setStep('phone');
       setExistingCustomer(null);

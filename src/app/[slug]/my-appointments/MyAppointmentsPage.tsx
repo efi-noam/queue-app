@@ -76,7 +76,9 @@ export function MyAppointmentsPage({ business }: MyAppointmentsPageProps) {
   };
 
   const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr);
+    // Parse YYYY-MM-DD as local date (not UTC) to avoid timezone shift
+    const [year, month, day] = dateStr.split('-').map(Number);
+    const date = new Date(year, month - 1, day);
     return date.toLocaleDateString('he-IL', {
       weekday: 'long',
       day: 'numeric',
@@ -153,10 +155,12 @@ export function MyAppointmentsPage({ business }: MyAppointmentsPageProps) {
                     px-3 py-1 rounded-full text-xs font-medium
                     ${appointment.status === 'confirmed' 
                       ? 'bg-green-100 text-green-700'
+                      : appointment.status === 'cancelled'
+                      ? 'bg-red-100 text-red-700'
                       : 'bg-yellow-100 text-yellow-700'
                     }
                   `}>
-                    {appointment.status === 'confirmed' ? 'מאושר' : 'ממתין'}
+                    {appointment.status === 'confirmed' ? 'מאושר' : appointment.status === 'cancelled' ? 'בוטל' : 'ממתין'}
                   </span>
                   <div className="text-right">
                     <p className="font-bold text-gray-900">{formatDate(appointment.date)}</p>
@@ -179,14 +183,16 @@ export function MyAppointmentsPage({ business }: MyAppointmentsPageProps) {
                   </div>
                 )}
 
-                {/* Cancel button */}
-                <button
-                  onClick={() => handleCancelAppointment(appointment.id)}
-                  className="w-full mt-3 py-3 text-red-500 hover:bg-red-50 rounded-xl transition-colors flex items-center justify-center gap-2 font-medium"
-                >
-                  <XMarkIcon className="w-5 h-5" />
-                  בטל תור
-                </button>
+                {/* Cancel button - only show for non-cancelled appointments */}
+                {appointment.status !== 'cancelled' && (
+                  <button
+                    onClick={() => handleCancelAppointment(appointment.id)}
+                    className="w-full mt-3 py-3 text-red-500 hover:bg-red-50 rounded-xl transition-colors flex items-center justify-center gap-2 font-medium"
+                  >
+                    <XMarkIcon className="w-5 h-5" />
+                    בטל תור
+                  </button>
+                )}
               </div>
             ))}
 

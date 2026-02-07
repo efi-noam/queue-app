@@ -3,6 +3,9 @@ import { BusinessPage } from './BusinessPage';
 import { BusinessPausedPage } from './BusinessPausedPage';
 import { getBusinessBySlug, getServicesByBusinessId, getGalleryImages } from '@/lib/api';
 
+// Force dynamic rendering - always fetch fresh data from DB
+export const dynamic = 'force-dynamic';
+
 interface PageProps {
   params: Promise<{ slug: string }>;
 }

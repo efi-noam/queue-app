@@ -171,7 +171,9 @@ export function SchedulePage({ business, businessHours, initialOverrides }: Sche
   };
 
   const formatDateHebrew = (dateStr: string) => {
-    const date = new Date(dateStr);
+    // Parse YYYY-MM-DD as local date (not UTC) to avoid timezone shift
+    const [year, month, day] = dateStr.split('-').map(Number);
+    const date = new Date(year, month - 1, day);
     return date.toLocaleDateString('he-IL', {
       weekday: 'long',
       day: 'numeric',
@@ -338,7 +340,10 @@ export function SchedulePage({ business, businessHours, initialOverrides }: Sche
                     </p>
                   </div>
                   <button
-                    onClick={() => handleDateClick(new Date(override.date))}
+                    onClick={() => {
+                      const [y, mo, d] = override.date.split('-').map(Number);
+                      handleDateClick(new Date(y, mo - 1, d));
+                    }}
                     className="text-blue-500 text-sm hover:underline"
                   >
                     ערוך

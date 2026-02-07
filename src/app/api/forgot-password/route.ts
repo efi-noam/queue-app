@@ -107,7 +107,12 @@ export async function POST(request: NextRequest) {
 
     if (emailError) {
       console.error('Email error:', emailError);
-      // Still return success - code was saved
+      // Clear the reset code since email wasn't sent
+      await supabase
+        .from('customers')
+        .update({ reset_code: null, reset_code_expires: null })
+        .eq('id', customer.id);
+      return NextResponse.json({ error: 'שגיאה בשליחת האימייל. נסה שוב.' }, { status: 500 });
     }
 
     // Mask email for display

@@ -194,7 +194,7 @@ export function BookingForm({ businessId, businessSlug, businessName, onSubmit, 
 
     try {
       // Register customer with email
-      const result = await registerCustomer(businessId, phone, name, email, password);
+      const result = await registerCustomer(businessId, phone, name, password, email);
       
       if (result.success && result.customer) {
         saveSession({
