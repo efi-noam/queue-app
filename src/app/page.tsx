@@ -497,7 +497,7 @@ export default function LandingPage() {
                 <span className="text-gray-400">/חודש</span>
               </div>
               <ul className="space-y-3 mb-8">
-                <PricingItem text="עד 100 תורים בחודש" />
+                <PricingItem text="עד 200 תורים בחודש" />
                 <PricingItem text="דף עסק מותאם אישית" />
                 <PricingItem text="התראות על הזמנות" />
                 <PricingItem text="תמיכה בוואטסאפ" />
@@ -523,7 +523,8 @@ export default function LandingPage() {
               </div>
               <ul className="space-y-3 mb-8">
                 <PricingItem text="תורים ללא הגבלה" highlight />
-                <PricingItem text="ערכות עיצוב מתקדמות" highlight />
+                <PricingItem text="דשבורד דוחות וסטטיסטיקות" highlight />
+                <PricingItem text="ערכות עיצוב מתקדמות" />
                 <PricingItem text="ניהול גלריית תמונות" />
                 <PricingItem text="תמיכה בעדיפות" />
               </ul>
