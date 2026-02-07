@@ -116,6 +116,7 @@ export function BookingFlow({ business, services, businessHours }: BookingFlowPr
   const [bookingData, setBookingData] = useState<BookingFormData | null>(null);
   const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([]);
   const [isLoadingSlots, setIsLoadingSlots] = useState(false);
+  const [confirmDialog, setConfirmDialog] = useState<{ time: string; onConfirm: () => void } | null>(null);
   
   // Check if user is logged in
   const [session, setSession] = useState<{ customerId: string; customerName: string; phone: string } | null>(null);
@@ -128,6 +129,24 @@ export function BookingFlow({ business, services, businessHours }: BookingFlowPr
   }, [business.id]);
 
   const isLoggedIn = session !== null;
+
+  // Send booking notification emails (fire and forget)
+  const sendBookingNotification = (customerName: string, customerPhone: string, customerEmail: string | undefined, serviceName: string, date: string, time: string, price: number) => {
+    fetch('/api/booking-notification', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        businessId: business.id,
+        customerName,
+        customerPhone,
+        customerEmail,
+        serviceName,
+        date,
+        time,
+        price,
+      }),
+    }).catch(err => console.error('Notification error:', err));
+  };
 
   const availableDays = businessHours
     .filter(h => !h.is_closed)
@@ -172,12 +191,18 @@ export function BookingFlow({ business, services, businessHours }: BookingFlowPr
     setSelectedTime(null);
   };
 
-  const handleTimeSelect = async (time: string) => {
+  const handleTimeSelect = (time: string) => {
     setSelectedTime(time);
     
-    // If logged in, skip details and book directly
+    // If logged in, show confirmation popup before booking
     if (isLoggedIn && session) {
-      await handleBookingForLoggedInUser(time);
+      setConfirmDialog({
+        time,
+        onConfirm: async () => {
+          setConfirmDialog(null);
+          await handleBookingForLoggedInUser(time);
+        },
+      });
     } else {
       setCurrentStep('details');
     }
@@ -211,6 +236,18 @@ export function BookingFlow({ business, services, businessHours }: BookingFlowPr
       if (!appointment) {
         throw new Error('Failed to create appointment');
       }
+
+      // Send notification emails (fire and forget)
+      const savedSession = getSession();
+      sendBookingNotification(
+        session.customerName,
+        session.phone,
+        savedSession?.email,
+        selectedService.name,
+        selectedDate,
+        time,
+        selectedService.price
+      );
 
       const fullBookingData: BookingFormData = {
         service_id: selectedService.id,
@@ -275,6 +312,17 @@ export function BookingFlow({ business, services, businessHours }: BookingFlowPr
         throw new Error('Failed to create appointment');
       }
 
+      // Send notification emails (fire and forget)
+      sendBookingNotification(
+        customer.name,
+        customer.phone,
+        customer.email,
+        selectedService.name,
+        selectedDate,
+        selectedTime,
+        selectedService.price
+      );
+
       const fullBookingData: BookingFormData = {
         service_id: selectedService.id,
         date: selectedDate,
@@ -337,6 +385,56 @@ export function BookingFlow({ business, services, businessHours }: BookingFlowPr
 
   return (
     <div className={`min-h-screen ${theme.bg} ${isDark ? 'text-white' : ''}`}>
+      {/* Booking Confirmation Dialog */}
+      {confirmDialog && selectedService && selectedDate && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm px-4">
+          <div className={`${isDark ? 'bg-gray-900 border border-white/10' : 'bg-white'} rounded-2xl p-6 max-w-sm w-full shadow-2xl animate-scale-in`}>
+            <div className="text-center mb-5">
+              <div className={`w-14 h-14 mx-auto rounded-full bg-gradient-to-br ${theme.accent} flex items-center justify-center mb-3`}>
+                <svg className="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <h3 className={`text-lg font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>אישור קביעת תור</h3>
+            </div>
+
+            <div className={`${isDark ? 'bg-white/5 border-white/10' : 'bg-gray-50 border-gray-100'} border rounded-xl p-4 mb-5 space-y-2 text-sm`}>
+              <div className="flex justify-between">
+                <span className={`font-medium ${isDark ? 'text-white' : 'text-gray-900'}`}>{selectedService.name}</span>
+                <span className={isDark ? 'text-gray-400' : 'text-gray-500'}>שירות</span>
+              </div>
+              <div className="flex justify-between">
+                <span className={`font-medium ${isDark ? 'text-white' : 'text-gray-900'}`}>{formatDate(selectedDate)}</span>
+                <span className={isDark ? 'text-gray-400' : 'text-gray-500'}>תאריך</span>
+              </div>
+              <div className="flex justify-between">
+                <span className={`font-bold text-lg ${isDark ? 'text-white' : 'text-gray-900'}`}>{confirmDialog.time}</span>
+                <span className={isDark ? 'text-gray-400' : 'text-gray-500'}>שעה</span>
+              </div>
+              <div className="flex justify-between">
+                <span className={`font-bold ${theme.accentSolid.replace('bg-', 'text-')}`}>₪{selectedService.price}</span>
+                <span className={isDark ? 'text-gray-400' : 'text-gray-500'}>מחיר</span>
+              </div>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => { setConfirmDialog(null); setSelectedTime(null); }}
+                className={`flex-1 py-3 rounded-xl font-medium transition-colors ${isDark ? 'bg-white/10 text-white hover:bg-white/20' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+              >
+                ביטול
+              </button>
+              <button
+                onClick={confirmDialog.onConfirm}
+                className={`flex-1 py-3 rounded-xl bg-gradient-to-r ${theme.accent} text-white font-medium hover:opacity-90 transition-opacity`}
+              >
+                אישור ✓
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <header className={`${theme.headerBg} backdrop-blur-xl border-b ${theme.headerBorder} sticky top-0 z-50`}>
         <div className="flex items-center justify-between px-4 py-4 max-w-lg mx-auto">

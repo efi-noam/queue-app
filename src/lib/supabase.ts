@@ -18,7 +18,13 @@ function createSafeClient() {
     };
   }
   
-  return createClient(supabaseUrl, supabaseAnonKey);
+  return createClient(supabaseUrl, supabaseAnonKey, {
+    global: {
+      fetch: (url, options = {}) => {
+        return fetch(url, { ...options, cache: 'no-store' });
+      },
+    },
+  });
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
