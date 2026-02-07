@@ -2,6 +2,8 @@ import { notFound } from 'next/navigation';
 import { SchedulePage } from './SchedulePage';
 import { getBusinessBySlug, getBusinessHours, getScheduleOverrides, getTodayLocal, formatDateLocal } from '@/lib/api';
 
+export const dynamic = 'force-dynamic';
+
 interface PageProps {
   params: Promise<{ slug: string }>;
 }

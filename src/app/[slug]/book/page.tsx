@@ -2,6 +2,8 @@ import { notFound, redirect } from 'next/navigation';
 import { BookingFlow } from './BookingFlow';
 import { getBusinessBySlug, getServicesByBusinessId, getBusinessHours } from '@/lib/api';
 
+export const dynamic = 'force-dynamic';
+
 interface PageProps {
   params: Promise<{ slug: string }>;
 }

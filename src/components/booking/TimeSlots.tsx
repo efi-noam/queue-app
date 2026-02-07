@@ -7,9 +7,10 @@ interface TimeSlotsProps {
   selectedTime: string | null;
   onSelectTime: (time: string) => void;
   isLoading?: boolean;
+  isDark?: boolean;
 }
 
-export function TimeSlots({ slots, selectedTime, onSelectTime, isLoading = false }: TimeSlotsProps) {
+export function TimeSlots({ slots, selectedTime, onSelectTime, isLoading = false, isDark = false }: TimeSlotsProps) {
   if (isLoading) {
     return (
       <div className="flex justify-center py-12">
@@ -23,10 +24,10 @@ export function TimeSlots({ slots, selectedTime, onSelectTime, isLoading = false
   if (!slots || slots.length === 0) {
     return (
       <div className="text-center py-12 animate-fade-in">
-        <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+        <div className={`w-16 h-16 ${isDark ? 'bg-white/10' : 'bg-gray-100'} rounded-full flex items-center justify-center mx-auto mb-4`}>
           <span className="text-2xl">🕐</span>
         </div>
-        <p className="text-gray-500">אין שעות פנויות בתאריך זה</p>
+        <p className={isDark ? 'text-gray-400' : 'text-gray-500'}>אין שעות פנויות בתאריך זה</p>
       </div>
     );
   }
@@ -36,11 +37,11 @@ export function TimeSlots({ slots, selectedTime, onSelectTime, isLoading = false
   if (availableSlots.length === 0) {
     return (
       <div className="text-center py-12 animate-fade-in">
-        <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+        <div className={`w-16 h-16 ${isDark ? 'bg-white/10' : 'bg-gray-100'} rounded-full flex items-center justify-center mx-auto mb-4`}>
           <span className="text-2xl">😔</span>
         </div>
-        <p className="text-gray-500">אין שעות פנויות בתאריך זה</p>
-        <p className="text-sm text-gray-400 mt-1">נסה לבחור תאריך אחר</p>
+        <p className={isDark ? 'text-gray-400' : 'text-gray-500'}>אין שעות פנויות בתאריך זה</p>
+        <p className={`text-sm ${isDark ? 'text-gray-500' : 'text-gray-400'} mt-1`}>נסה לבחור תאריך אחר</p>
       </div>
     );
   }
@@ -61,8 +62,12 @@ export function TimeSlots({ slots, selectedTime, onSelectTime, isLoading = false
               ${isSelected
                 ? 'bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/30 scale-105'
                 : slot.available
-                  ? 'bg-white text-gray-900 shadow-sm hover:shadow-md hover:scale-102 hover:bg-blue-50'
-                  : 'bg-gray-50 text-gray-300 cursor-not-allowed line-through'
+                  ? isDark 
+                    ? 'bg-white/10 text-white hover:bg-white/20 hover:scale-102'
+                    : 'bg-white text-gray-900 shadow-sm hover:shadow-md hover:scale-102 hover:bg-blue-50'
+                  : isDark
+                    ? 'bg-white/5 text-gray-600 cursor-not-allowed line-through'
+                    : 'bg-gray-50 text-gray-300 cursor-not-allowed line-through'
               }
             `}
             style={{ animationDelay: `${index * 0.02}s` }}

@@ -137,7 +137,7 @@ export function BusinessPage({ business, gallery }: BusinessPageProps) {
   };
 
   return (
-    <div className={`min-h-screen ${theme.bg} ${isDark ? 'text-white' : ''} overflow-hidden`}>
+    <div className={`min-h-screen ${theme.bg} ${isDark ? 'text-white' : ''}`}>
       {/* Animated Background Elements */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <div className={`absolute -top-40 -right-40 w-80 h-80 ${theme.glowColor} rounded-full blur-[100px] animate-pulse`} />

@@ -2,6 +2,8 @@ import { notFound } from 'next/navigation';
 import { SettingsPage } from './SettingsPage';
 import { getBusinessBySlug, getServicesByBusinessId, getBusinessHours, getGalleryImages } from '@/lib/api';
 
+export const dynamic = 'force-dynamic';
+
 interface PageProps {
   params: Promise<{ slug: string }>;
 }

@@ -7,9 +7,10 @@ interface DatePickerProps {
   selectedDate: string | null;
   onSelectDate: (date: string) => void;
   availableDays?: number[]; // 0-6, Sunday-Saturday
+  isDark?: boolean;
 }
 
-export function DatePicker({ selectedDate, onSelectDate, availableDays = [0, 1, 2, 3, 4, 5] }: DatePickerProps) {
+export function DatePicker({ selectedDate, onSelectDate, availableDays = [0, 1, 2, 3, 4, 5], isDark = false }: DatePickerProps) {
   const [currentMonth, setCurrentMonth] = useState(() => new Date());
 
   const daysInMonth = useMemo(() => {
@@ -66,23 +67,23 @@ export function DatePicker({ selectedDate, onSelectDate, availableDays = [0, 1, 
   ];
 
   return (
-    <div className="bg-white rounded-3xl p-5 shadow-lg shadow-gray-200/50 animate-scale-in">
+    <div className={`${isDark ? 'bg-white/10 backdrop-blur-xl' : 'bg-white shadow-gray-200/50'} rounded-3xl p-5 shadow-lg animate-scale-in`}>
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <button
           onClick={goToNextMonth}
-          className="p-2.5 hover:bg-gray-100 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95"
+          className={`p-2.5 ${isDark ? 'hover:bg-white/10' : 'hover:bg-gray-100'} rounded-xl transition-all duration-200 hover:scale-110 active:scale-95`}
         >
-          <ChevronLeftIcon className="w-5 h-5 text-gray-600" />
+          <ChevronLeftIcon className={`w-5 h-5 ${isDark ? 'text-gray-400' : 'text-gray-600'}`} />
         </button>
-        <h3 className="font-bold text-lg text-gray-900">
+        <h3 className={`font-bold text-lg ${isDark ? 'text-white' : 'text-gray-900'}`}>
           {hebrewMonths[currentMonth.getMonth()]} {currentMonth.getFullYear()}
         </h3>
         <button
           onClick={goToPreviousMonth}
-          className="p-2.5 hover:bg-gray-100 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95"
+          className={`p-2.5 ${isDark ? 'hover:bg-white/10' : 'hover:bg-gray-100'} rounded-xl transition-all duration-200 hover:scale-110 active:scale-95`}
         >
-          <ChevronRightIcon className="w-5 h-5 text-gray-600" />
+          <ChevronRightIcon className={`w-5 h-5 ${isDark ? 'text-gray-400' : 'text-gray-600'}`} />
         </button>
       </div>
 
@@ -123,8 +124,8 @@ export function DatePicker({ selectedDate, onSelectDate, availableDays = [0, 1, 
                 ${isSelected
                   ? 'bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/30 scale-110 z-10'
                   : isAvailable
-                    ? 'hover:bg-blue-50 text-gray-900 hover:scale-105'
-                    : 'text-gray-300 cursor-not-allowed'
+                    ? `${isDark ? 'hover:bg-white/10 text-white' : 'hover:bg-blue-50 text-gray-900'} hover:scale-105`
+                    : `${isDark ? 'text-gray-600' : 'text-gray-300'} cursor-not-allowed`
                 }
               `}
             >

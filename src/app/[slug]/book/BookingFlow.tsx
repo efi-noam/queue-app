@@ -471,12 +471,13 @@ export function BookingFlow({ business, services, businessHours }: BookingFlowPr
               selectedDate={selectedDate}
               onSelectDate={handleDateSelect}
               availableDays={availableDays}
+              isDark={isDark}
             />
 
             {selectedDate && (
               <div className="mt-8 animate-slide-up">
-                <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                  <span className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
+                <h2 className={`text-xl font-bold ${theme.text} mb-4 flex items-center gap-2`}>
+                  <span className={`w-10 h-10 ${isDark ? 'bg-white/10' : theme.progressBg} rounded-xl flex items-center justify-center`}>
                     <span className="text-lg">🕐</span>
                   </span>
                   בחר שעה
@@ -486,6 +487,7 @@ export function BookingFlow({ business, services, businessHours }: BookingFlowPr
                   selectedTime={selectedTime}
                   onSelectTime={handleTimeSelect}
                   isLoading={isLoadingSlots}
+                  isDark={isDark}
                 />
               </div>
             )}
@@ -496,25 +498,25 @@ export function BookingFlow({ business, services, businessHours }: BookingFlowPr
         {currentStep === 'details' && selectedService && selectedDate && selectedTime && (
           <div className="animate-fade-in">
             {/* Booking summary */}
-            <div className="bg-white rounded-2xl p-5 mb-6 shadow-lg shadow-gray-200/50 border border-gray-100">
-              <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
-                <SparklesIcon className="w-5 h-5 text-blue-500" />
+            <div className={`${theme.cardBg} rounded-2xl p-5 mb-6 shadow-lg ${isDark ? '' : 'shadow-gray-200/50'} border ${isDark ? 'border-white/10' : 'border-gray-100'}`}>
+              <h3 className={`font-bold ${theme.text} mb-4 flex items-center gap-2`}>
+                <SparklesIcon className={`w-5 h-5 ${theme.accentSolid.replace('bg-', 'text-')}`} />
                 סיכום הזמנה
               </h3>
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between items-center">
-                  <span className="font-semibold text-blue-600">₪{selectedService.price}</span>
-                  <span className="text-gray-600">{selectedService.name}</span>
+                  <span className={`font-semibold ${theme.accentSolid.replace('bg-', 'text-')}`}>₪{selectedService.price}</span>
+                  <span className={theme.textMuted}>{selectedService.name}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-900 font-medium">{selectedTime}</span>
-                  <span className="text-gray-600">{formatDate(selectedDate)}</span>
+                  <span className={`${theme.text} font-medium`}>{selectedTime}</span>
+                  <span className={theme.textMuted}>{formatDate(selectedDate)}</span>
                 </div>
               </div>
             </div>
 
-            <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-              <span className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
+            <h2 className={`text-xl font-bold ${theme.text} mb-6 flex items-center gap-2`}>
+              <span className={`w-10 h-10 ${isDark ? 'bg-white/10' : theme.progressBg} rounded-xl flex items-center justify-center`}>
                 <span className="text-lg">👤</span>
               </span>
               הזדהות

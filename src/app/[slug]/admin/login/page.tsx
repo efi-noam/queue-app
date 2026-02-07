@@ -2,6 +2,8 @@ import { notFound } from 'next/navigation';
 import { AdminLoginPage } from './AdminLoginPage';
 import { getBusinessBySlug } from '@/lib/api';
 
+export const dynamic = 'force-dynamic';
+
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
