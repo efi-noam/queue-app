@@ -30,6 +30,13 @@ export default function LeadsPage() {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'new' | 'contacted' | 'converted' | 'closed'>('all');
+  const [confirmDialog, setConfirmDialog] = useState<{ message: string; onConfirm: () => void } | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
+
+  const showToast = (msg: string) => {
+    setToast(msg);
+    setTimeout(() => setToast(null), 3000);
+  };
 
   useEffect(() => {
     const session = getPlatformSession();
@@ -59,17 +66,21 @@ export default function LeadsPage() {
         )
       );
     } else {
-      alert('שגיאה בעדכון הסטטוס');
+      showToast('שגיאה בעדכון הסטטוס');
     }
   };
 
-  const handleDelete = async (leadId: string) => {
-    if (!confirm('למחוק את הליד?')) return;
-    
-    const success = await deleteLead(leadId);
-    if (success) {
-      setLeads(prev => prev.filter(lead => lead.id !== leadId));
-    }
+  const handleDelete = (leadId: string) => {
+    setConfirmDialog({
+      message: 'למחוק את הליד?',
+      onConfirm: async () => {
+        setConfirmDialog(null);
+        const success = await deleteLead(leadId);
+        if (success) {
+          setLeads(prev => prev.filter(lead => lead.id !== leadId));
+        }
+      },
+    });
   };
 
   if (!isAuthorized) {
@@ -162,6 +173,36 @@ export default function LeadsPage() {
           </div>
         )}
       </main>
+
+      {/* Confirm Dialog */}
+      {confirmDialog && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
+          <div className="bg-gray-800 rounded-2xl p-6 max-w-sm w-full shadow-2xl border border-gray-700">
+            <p className="text-white text-center font-medium mb-6">{confirmDialog.message}</p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setConfirmDialog(null)}
+                className="flex-1 py-3 rounded-xl border border-gray-600 text-gray-300 font-medium hover:bg-gray-700 transition-colors"
+              >
+                ביטול
+              </button>
+              <button
+                onClick={confirmDialog.onConfirm}
+                className="flex-1 py-3 rounded-xl bg-red-500 text-white font-medium hover:bg-red-600 transition-colors"
+              >
+                מחק
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Toast */}
+      {toast && (
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[70] bg-red-500 text-white px-6 py-3 rounded-xl shadow-lg text-sm font-medium">
+          {toast}
+        </div>
+      )}
     </div>
   );
 }

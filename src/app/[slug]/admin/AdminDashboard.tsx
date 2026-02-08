@@ -54,6 +54,13 @@ export function AdminDashboard({ business, services }: AdminDashboardProps) {
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [adminName, setAdminName] = useState('');
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [confirmDialog, setConfirmDialog] = useState<{ message: string; onConfirm: () => void } | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
+
+  const showToast = (msg: string) => {
+    setToast(msg);
+    setTimeout(() => setToast(null), 3000);
+  };
 
   // Check admin session
   useEffect(() => {
@@ -101,22 +108,24 @@ export function AdminDashboard({ business, services }: AdminDashboardProps) {
     );
   }
 
-  const handleCancelAppointment = async (appointmentId: string) => {
-    if (!confirm('האם אתה בטוח שברצונך לבטל את התור?')) {
-      return;
-    }
-
-    try {
-      const success = await cancelAppointment(appointmentId);
-      if (success) {
-        setAppointments(prev => prev.filter(a => a.id !== appointmentId));
-      } else {
-        alert('שגיאה בביטול התור');
-      }
-    } catch (err) {
-      console.error('Error cancelling:', err);
-      alert('שגיאה בביטול התור');
-    }
+  const handleCancelAppointment = (appointmentId: string) => {
+    setConfirmDialog({
+      message: 'האם אתה בטוח שברצונך לבטל את התור?',
+      onConfirm: async () => {
+        setConfirmDialog(null);
+        try {
+          const success = await cancelAppointment(appointmentId);
+          if (success) {
+            setAppointments(prev => prev.filter(a => a.id !== appointmentId));
+          } else {
+            showToast('שגיאה בביטול התור');
+          }
+        } catch (err) {
+          console.error('Error cancelling:', err);
+          showToast('שגיאה בביטול התור');
+        }
+      },
+    });
   };
 
   const formatDate = (dateStr: string) => {
@@ -489,6 +498,36 @@ export function AdminDashboard({ business, services }: AdminDashboardProps) {
           </div>
         </div>
       </nav>
+
+      {/* Confirm Dialog */}
+      {confirmDialog && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl">
+            <p className="text-gray-900 text-center font-medium mb-6">{confirmDialog.message}</p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setConfirmDialog(null)}
+                className="flex-1 py-3 rounded-xl border border-gray-200 text-gray-700 font-medium hover:bg-gray-50 transition-colors"
+              >
+                ביטול
+              </button>
+              <button
+                onClick={confirmDialog.onConfirm}
+                className="flex-1 py-3 rounded-xl bg-red-500 text-white font-medium hover:bg-red-600 transition-colors"
+              >
+                בטל תור
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Toast */}
+      {toast && (
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[70] bg-red-500 text-white px-6 py-3 rounded-xl shadow-lg text-sm font-medium">
+          {toast}
+        </div>
+      )}
     </div>
   );
 }

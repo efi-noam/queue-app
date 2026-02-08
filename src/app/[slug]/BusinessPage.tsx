@@ -116,6 +116,7 @@ const themes = {
 
 export function BusinessPage({ business, gallery }: BusinessPageProps) {
   const [isLoaded, setIsLoaded] = useState(false);
+  const [toast, setToast] = useState<string | null>(null);
   const theme = themes[business.theme as keyof typeof themes] || themes.light;
   const isDark = business.theme === 'dark' || business.theme === 'modern';
   const isModern = business.theme === 'modern';
@@ -133,7 +134,8 @@ export function BusinessPage({ business, gallery }: BusinessPageProps) {
       });
     } else {
       navigator.clipboard.writeText(window.location.href);
-      alert('הקישור הועתק!');
+      setToast('הקישור הועתק!');
+      setTimeout(() => setToast(null), 3000);
     }
   };
 
@@ -416,6 +418,13 @@ export function BusinessPage({ business, gallery }: BusinessPageProps) {
 
       {/* Bottom Navigation */}
       <BottomNav slug={business.slug} theme={business.theme || 'light'} />
+
+      {/* Toast */}
+      {toast && (
+        <div className={`fixed top-4 left-1/2 -translate-x-1/2 z-[70] ${isDark ? 'bg-white text-gray-900' : 'bg-gray-900 text-white'} px-6 py-3 rounded-xl shadow-lg text-sm font-medium`}>
+          {toast}
+        </div>
+      )}
     </div>
   );
 }

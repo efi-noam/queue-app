@@ -118,6 +118,12 @@ export function BookingFlow({ business, services, businessHours }: BookingFlowPr
   const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([]);
   const [isLoadingSlots, setIsLoadingSlots] = useState(false);
   const [confirmDialog, setConfirmDialog] = useState<{ time: string; onConfirm: () => void } | null>(null);
+  const [errorToast, setErrorToast] = useState<string | null>(null);
+
+  const showErrorToast = (msg: string) => {
+    setErrorToast(msg);
+    setTimeout(() => setErrorToast(null), 3000);
+  };
   
   // Check if user is logged in
   const [session, setSession] = useState<{ customerId: string; customerName: string; phone: string } | null>(null);
@@ -262,7 +268,7 @@ export function BookingFlow({ business, services, businessHours }: BookingFlowPr
       setCurrentStep('confirmation');
     } catch (error) {
       console.error('Error creating appointment:', error);
-      alert('שגיאה בקביעת התור. נסה שוב.');
+      showErrorToast('שגיאה בקביעת התור. נסה שוב.');
     } finally {
       setIsSubmitting(false);
     }
@@ -336,7 +342,7 @@ export function BookingFlow({ business, services, businessHours }: BookingFlowPr
       setCurrentStep('confirmation');
     } catch (error) {
       console.error('Error creating appointment:', error);
-      alert('שגיאה בקביעת התור. נסה שוב.');
+      showErrorToast('שגיאה בקביעת התור. נסה שוב.');
     } finally {
       setIsSubmitting(false);
     }
@@ -684,6 +690,13 @@ export function BookingFlow({ business, services, businessHours }: BookingFlowPr
 
       {/* Bottom Navigation */}
       <BottomNav slug={business.slug} theme={business.theme || 'light'} />
+
+      {/* Error Toast */}
+      {errorToast && (
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[70] bg-red-500 text-white px-6 py-3 rounded-xl shadow-lg text-sm font-medium">
+          {errorToast}
+        </div>
+      )}
     </div>
   );
 }

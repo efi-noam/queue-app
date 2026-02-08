@@ -159,15 +159,23 @@ export default function LandingPage() {
                   <ArrowLeftIcon className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
                 </Link>
 
-                {/* Live Demo Link */}
-                <Link
-                  href="/david-david"
-                  target="_blank"
-                  className="inline-flex items-center justify-center gap-2 px-6 py-4 border border-white/20 rounded-2xl font-medium text-gray-300 hover:text-white hover:border-white/40 transition-all"
-                >
-                  <CalendarDaysIcon className="w-5 h-5" />
-                  ראו דוגמא חיה
-                </Link>
+                {/* Live Demo Links */}
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <Link
+                    href="/david-david"
+                    target="_blank"
+                    className="inline-flex items-center justify-center gap-2 px-6 py-4 border border-white/20 rounded-2xl font-medium text-gray-300 hover:text-white hover:border-white/40 transition-all"
+                  >
+                    💈 דוגמא - מספרה
+                  </Link>
+                  <Link
+                    href="/lili-beauty"
+                    target="_blank"
+                    className="inline-flex items-center justify-center gap-2 px-6 py-4 border border-pink-400/30 rounded-2xl font-medium text-pink-300 hover:text-pink-200 hover:border-pink-400/50 transition-all"
+                  >
+                    ✨ דוגמא - קוסמטיקה
+                  </Link>
+                </div>
               </div>
 
               {/* Trust */}
@@ -444,14 +452,22 @@ export default function LandingPage() {
           </div>
 
           {/* Live Demo CTA */}
-          <div className="mt-10 text-center">
+          <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
               href="/david-david"
               target="_blank"
               className="inline-flex items-center gap-2 text-blue-400 hover:text-blue-300 font-medium transition-colors"
             >
-              <CalendarDaysIcon className="w-5 h-5" />
-              רוצים לראות איך זה נראה? לחצו כאן לדוגמא חיה
+              💈 דוגמא חיה - מספרה
+              <ArrowLeftIcon className="w-4 h-4" />
+            </Link>
+            <span className="text-gray-600 hidden sm:inline">|</span>
+            <Link
+              href="/lili-beauty"
+              target="_blank"
+              className="inline-flex items-center gap-2 text-pink-400 hover:text-pink-300 font-medium transition-colors"
+            >
+              ✨ דוגמא חיה - קוסמטיקה
               <ArrowLeftIcon className="w-4 h-4" />
             </Link>
           </div>
