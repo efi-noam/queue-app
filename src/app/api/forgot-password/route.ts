@@ -109,7 +109,7 @@ export async function POST(request: NextRequest) {
         .from('customers')
         .update({ reset_code: null, reset_code_expires: null })
         .eq('id', customer.id);
-      return NextResponse.json({ error: 'שגיאה בשליחת האימייל. נסה שוב.' }, { status: 500 });
+      return NextResponse.json({ error: `שגיאה בשליחת האימייל: ${emailError || 'unknown'}` }, { status: 500 });
     }
 
     // Mask email for display
