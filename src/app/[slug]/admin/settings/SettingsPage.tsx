@@ -555,10 +555,16 @@ export function SettingsPage({ business, services: initialServices, businessHour
               <h3 className="font-bold text-gray-800 mb-3">מרווח זמן בין תורים</h3>
               <p className="text-sm text-gray-500 mb-4">בחר את משך הזמן המינימלי בין תורים</p>
               <div className="flex gap-2">
-                {[15, 20, 30].map((interval) => (
+                {[15, 20, 30, 45, 60].map((interval) => (
                   <button
                     key={interval}
-                    onClick={() => setSlotInterval(interval)}
+                    onClick={async () => {
+                      setSlotInterval(interval);
+                      const success = await updateBusiness(business.id, { slot_interval: interval });
+                      if (success) {
+                        showSaveMessage('מרווח הזמן עודכן!');
+                      }
+                    }}
                     className={`flex-1 py-3 rounded-xl font-medium transition-all ${
                       slotInterval === interval
                         ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/30'
@@ -624,7 +630,7 @@ export function SettingsPage({ business, services: initialServices, businessHour
                         </div>
                         
                         {/* Break hours */}
-                        <div className="flex items-center gap-2 justify-end">
+                        <div className="flex flex-wrap items-center gap-2 justify-end">
                           <label className="flex items-center gap-1 cursor-pointer">
                             <input
                               type="checkbox"
@@ -646,7 +652,7 @@ export function SettingsPage({ business, services: initialServices, businessHour
                           </label>
                           
                           {day.break_start && day.break_end && (
-                            <>
+                            <div className="flex items-center gap-2">
                               <input
                                 type="time"
                                 value={day.break_end}
@@ -668,7 +674,7 @@ export function SettingsPage({ business, services: initialServices, businessHour
                                 }}
                                 className="px-2 py-1 bg-orange-50 border border-orange-200 rounded-lg text-sm w-24"
                               />
-                            </>
+                            </div>
                           )}
                         </div>
                       </div>

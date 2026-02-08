@@ -78,7 +78,7 @@ export interface Business {
   facebook: string | null;
   logo_url: string | null;
   cover_image_url: string | null;
-  slot_interval: number; // Minutes between slots (15, 20, 30)
+  slot_interval: number; // Minutes between slots (15, 20, 30, 45, 60)
   theme: 'light' | 'dark' | 'ocean' | 'sunset' | 'forest' | 'rose' | 'modern'; // UI theme
   is_active: boolean;
   created_at: string;
