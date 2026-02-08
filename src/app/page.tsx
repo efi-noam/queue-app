@@ -439,9 +439,9 @@ export default function LandingPage() {
             />
             <FeatureCard
               icon={BellAlertIcon}
-              title="התראות בזמן אמת"
-              description="מקבלים התראה על כל הזמנה חדשה, ביטול, או שינוי. תמיד יודעים מה קורה ביומן."
-              highlight="בזמן אמת"
+              title="התראות אימייל אוטומטיות"
+              description="מקבלים מייל על כל תור חדש וביטול. גם הלקוח מקבל אישור הזמנה ועדכון ביטול ישירות למייל."
+              highlight="אוטומטיות"
             />
             <FeatureCard
               icon={ClockIcon}
@@ -515,7 +515,7 @@ export default function LandingPage() {
               <ul className="space-y-3 mb-8">
                 <PricingItem text="עד 200 תורים בחודש" />
                 <PricingItem text="דף עסק מותאם אישית" />
-                <PricingItem text="התראות על הזמנות" />
+                <PricingItem text="התראות אימייל על תורים וביטולים" />
                 <PricingItem text="תמיכה בוואטסאפ" />
               </ul>
               <Link

@@ -68,6 +68,12 @@ export function MyAppointmentsPage({ business }: MyAppointmentsPageProps) {
         try {
           const success = await cancelAppointment(appointmentId);
           if (success) {
+            // Send cancellation notification (fire and forget)
+            fetch('/api/cancel-notification', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ appointmentId, cancelledBy: 'customer' }),
+            }).catch(console.error);
             setAppointments(prev => prev.filter(a => a.id !== appointmentId));
           } else {
             showToast('שגיאה בביטול התור');
