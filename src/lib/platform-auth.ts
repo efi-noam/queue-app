@@ -1,8 +1,5 @@
 'use client';
 
-import { supabase } from './supabase';
-import type { PlatformAdmin } from '@/types/database';
-
 interface PlatformSession {
   adminId: string;
   adminName: string;
@@ -17,38 +14,19 @@ export async function loginPlatformAdmin(
   password: string
 ): Promise<{ success: boolean; session?: PlatformSession; error?: string }> {
   try {
-    // Find admin by email
-    const { data: admin, error } = await supabase
-      .from('platform_admins')
-      .select('*')
-      .eq('email', email.toLowerCase())
-      .eq('is_active', true)
-      .single();
+    const res = await fetch('/api/platform-login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    });
+    const data = await res.json();
 
-    if (error || !admin) {
-      return { success: false, error: 'אימייל או סיסמה שגויים' };
+    if (!res.ok || !data.success) {
+      return { success: false, error: data.error || 'אימייל או סיסמה שגויים' };
     }
 
-    // Simple password check (in production, use proper hashing!)
-    if (admin.password_hash !== password) {
-      return { success: false, error: 'אימייל או סיסמה שגויים' };
-    }
-
-    // Update last login
-    await supabase
-      .from('platform_admins')
-      .update({ last_login: new Date().toISOString() })
-      .eq('id', admin.id);
-
-    const session: PlatformSession = {
-      adminId: admin.id,
-      adminName: admin.name,
-      email: admin.email,
-      role: admin.role,
-    };
-
-    savePlatformSession(session);
-    return { success: true, session };
+    savePlatformSession(data.session);
+    return { success: true, session: data.session };
   } catch (error) {
     console.error('Login error:', error);
     return { success: false, error: 'שגיאה בהתחברות' };

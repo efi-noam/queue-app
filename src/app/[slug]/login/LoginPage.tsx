@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ArrowRightIcon, PhoneIcon, LockClosedIcon, UserIcon, EnvelopeIcon } from '@heroicons/react/24/outline';
 import { Button } from '@/components/ui/Button';
+import { BottomNav } from '@/components/ui/BottomNav';
 import { registerCustomer, loginCustomer, saveSession } from '@/lib/auth';
 import type { Business } from '@/types/database';
 
@@ -234,7 +235,13 @@ export function LoginPage({ business }: LoginPageProps) {
             המשך בלי חשבון להזמנת תור
           </Link>
         </div>
+
+        {/* Spacer for bottom nav */}
+        <div className="h-20" />
       </main>
+
+      {/* Bottom Navigation */}
+      <BottomNav slug={business.slug} theme={business.theme || 'light'} />
     </div>
   );
 }

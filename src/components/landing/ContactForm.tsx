@@ -31,6 +31,18 @@ export function ContactForm() {
 
     if (lead) {
       setIsSuccess(true);
+      
+      // Send email notification about new lead (fire and forget)
+      fetch('/api/lead-notification', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          businessName,
+          contactName,
+          phone,
+        }),
+      }).catch(console.error);
+
       setBusinessName('');
       setContactName('');
       setPhone('');

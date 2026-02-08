@@ -11,9 +11,11 @@ test.describe('Booking Flow', () => {
     await expect(page.locator('text=בחר שירות')).toBeVisible();
   });
 
-  test('shows progress indicator', async ({ page }) => {
-    await expect(page.locator('text=שירות')).toBeVisible();
-    await expect(page.locator('text=מועד')).toBeVisible();
+  test('shows progress step indicators', async ({ page }) => {
+    // Progress bar shows step numbers (1, 2, etc.)
+    const stepCircles = page.locator('div.rounded-full').filter({ hasText: /^[123]$/ });
+    const count = await stepCircles.count();
+    expect(count).toBeGreaterThanOrEqual(2);
   });
 
   test('can select a service', async ({ page }) => {
@@ -30,7 +32,7 @@ test.describe('Booking Flow', () => {
     const serviceCard = page.locator('[class*="rounded-2xl"]').filter({ hasText: /₪/ }).first();
     await serviceCard.click();
 
-    // Calendar should be visible
+    // Calendar should be visible with Hebrew month names
     const calendar = page.locator('text=ינואר').or(page.locator('text=פברואר'))
       .or(page.locator('text=מרץ')).or(page.locator('text=אפריל'))
       .or(page.locator('text=מאי')).or(page.locator('text=יוני'))

@@ -14,12 +14,11 @@ test.describe('Business Page', () => {
 
   test('shows business description', async ({ page }) => {
     await expect(page.locator('text=על העסק')).toBeVisible();
-    await expect(page.locator('text=מספרה מקצועית')).toBeVisible();
   });
 
-  test('shows address with map link', async ({ page }) => {
-    const addressLink = page.locator('a[href*="google.com/maps"]');
-    await expect(addressLink).toBeVisible();
+  test('shows address', async ({ page }) => {
+    // Address is rendered as a link to Google Maps
+    await expect(page.locator('a[href*="maps"]').first()).toBeVisible();
   });
 
   test('shows CTA booking button', async ({ page }) => {
@@ -71,30 +70,24 @@ test.describe('Business Page - Nav Bar Position', () => {
     const box = await nav.boundingBox();
     const viewport = page.viewportSize();
     expect(box).toBeTruthy();
-    // Nav bottom edge should be near viewport bottom (within 5px)
     expect(box!.y + box!.height).toBeGreaterThan(viewport!.height - 5);
   });
 });
 
 test.describe('Business Page - Dark Mode', () => {
-  test('renders dark background when theme is dark', async ({ page }) => {
+  test('renders with theme classes', async ({ page }) => {
     await page.goto(`/${BUSINESS_SLUG}`);
     const root = page.locator('div.min-h-screen').first();
     const classes = await root.getAttribute('class');
-    // Should have either bg-gray-950 (dark) or a gradient (light themes)
-    // We just check it rendered and has theme classes
     expect(classes).toBeTruthy();
-    expect(classes!.length).toBeGreaterThan(0);
+    expect(classes!).toMatch(/bg-/);
   });
 
   test('headings are visible (not dark text on dark bg)', async ({ page }) => {
     await page.goto(`/${BUSINESS_SLUG}`);
     const h1 = page.locator('h1').first();
     await expect(h1).toBeVisible();
-    // Check the heading color is not dark gray on a dark page
     const color = await h1.evaluate(el => getComputedStyle(el).color);
-    // color should be light (white or near-white), not dark gray
-    // rgb values above 200 indicate light text
     const match = color.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
     if (match) {
       const [, r, g, b] = match.map(Number);

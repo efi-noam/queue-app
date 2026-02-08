@@ -7,6 +7,7 @@ import { ServicesList } from '@/components/business/ServicesList';
 import { DatePicker } from '@/components/booking/DatePicker';
 import { TimeSlots } from '@/components/booking/TimeSlots';
 import { AuthFlow } from '@/components/booking/AuthFlow';
+import { BottomNav } from '@/components/ui/BottomNav';
 import { getAvailableTimeSlots, createAppointment } from '@/lib/api';
 import { getSession, saveSession } from '@/lib/auth';
 import type { Business, Service, BusinessHours, BookingFormData, TimeSlot } from '@/types/database';
@@ -496,7 +497,7 @@ export function BookingFlow({ business, services, businessHours }: BookingFlowPr
       </header>
 
       {/* Content */}
-      <main className="px-4 py-6 max-w-lg mx-auto">
+      <main className="px-4 py-6 pb-24 max-w-lg mx-auto">
         {/* Loading overlay for logged-in booking */}
         {isSubmitting && isLoggedIn && (
           <div className={`fixed inset-0 ${isDark ? 'bg-gray-950/80' : 'bg-white/80'} backdrop-blur-sm z-50 flex items-center justify-center`}>
@@ -680,6 +681,9 @@ export function BookingFlow({ business, services, businessHours }: BookingFlowPr
           </div>
         )}
       </main>
+
+      {/* Bottom Navigation */}
+      <BottomNav slug={business.slug} theme={business.theme || 'light'} />
     </div>
   );
 }

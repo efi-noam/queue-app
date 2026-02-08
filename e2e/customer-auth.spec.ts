@@ -30,12 +30,12 @@ test.describe('Customer Authentication Flow', () => {
     }
   });
 
-  test('my appointments page loads', async ({ page }) => {
+  test('my appointments page redirects to login when not logged in', async ({ page }) => {
     await page.goto(`/${BUSINESS_SLUG}/my-appointments`);
-    // Should show either appointments or login prompt
-    await expect(
-      page.locator('text=התורים שלי').or(page.locator('text=התחבר'))
-    ).toBeVisible({ timeout: 5000 });
+    // When not logged in, the page redirects to login page
+    await expect(page).toHaveURL(new RegExp(`/${BUSINESS_SLUG}/login`), { timeout: 10000 });
+    // Login page should show phone input
+    await expect(page.locator('input[type="tel"]')).toBeVisible();
   });
 });
 

@@ -47,6 +47,8 @@ export interface BusinessOwner {
   phone: string | null;
   password_hash: string | null;
   is_active: boolean;
+  reset_code: string | null;
+  reset_code_expires: string | null;
   created_at: string;
 }
 
@@ -58,6 +60,8 @@ export interface PlatformAdmin {
   role: 'admin' | 'super_admin';
   is_active: boolean;
   last_login: string | null;
+  reset_code: string | null;
+  reset_code_expires: string | null;
   created_at: string;
 }
 

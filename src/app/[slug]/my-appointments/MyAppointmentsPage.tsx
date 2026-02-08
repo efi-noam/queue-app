@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ArrowRightIcon, CalendarIcon, ClockIcon, XMarkIcon, UserCircleIcon } from '@heroicons/react/24/outline';
 import { Button } from '@/components/ui/Button';
+import { BottomNav } from '@/components/ui/BottomNav';
 import { getSession, clearSession } from '@/lib/auth';
 import { getCustomerAppointments, cancelAppointment } from '@/lib/api';
 import type { Business, Appointment } from '@/types/database';
@@ -213,7 +214,13 @@ export function MyAppointmentsPage({ business }: MyAppointmentsPageProps) {
         >
           התנתק
         </button>
+
+        {/* Spacer for bottom nav */}
+        <div className="h-20" />
       </main>
+
+      {/* Bottom Navigation */}
+      <BottomNav slug={business.slug} theme={business.theme || 'light'} />
     </div>
   );
 }
