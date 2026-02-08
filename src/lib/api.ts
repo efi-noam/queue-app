@@ -301,6 +301,7 @@ export async function updateBusiness(
     p_logo_url: updates.logo_url !== undefined ? updates.logo_url : null,
     p_cover_image_url: updates.cover_image_url !== undefined ? updates.cover_image_url : null,
     p_theme: updates.theme !== undefined ? updates.theme : null,
+    p_slot_interval: updates.slot_interval !== undefined ? updates.slot_interval : null,
   };
   
   console.log('RPC params:', params);

@@ -555,7 +555,7 @@ export function SettingsPage({ business, services: initialServices, businessHour
               <h3 className="font-bold text-gray-800 mb-3">מרווח זמן בין תורים</h3>
               <p className="text-sm text-gray-500 mb-4">בחר את משך הזמן המינימלי בין תורים</p>
               <div className="flex gap-2">
-                {[15, 20, 30, 45, 60].map((interval) => (
+                {[30, 45, 60].map((interval) => (
                   <button
                     key={interval}
                     onClick={async () => {
