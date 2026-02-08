@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { Resend } from 'resend';
+import { sendEmail } from '@/lib/email';
 
 export const dynamic = 'force-dynamic';
 
@@ -9,8 +9,6 @@ export async function POST(request: NextRequest) {
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   );
-  const resend = new Resend(process.env.RESEND_API_KEY);
-
   try {
     const { businessId, customerName, customerPhone, customerEmail, serviceName, date, time, price } = await request.json();
 
@@ -52,8 +50,7 @@ export async function POST(request: NextRequest) {
 
     // 1. Send email to business owner
     if (owner?.email) {
-      const { error: ownerEmailError } = await resend.emails.send({
-        from: 'QueueApp <noreply@resend.dev>',
+      const { success: ownerSent, error: ownerEmailError } = await sendEmail({
         to: owner.email,
         subject: `תור חדש! ${customerName} - ${serviceName}`,
         html: `
@@ -102,7 +99,7 @@ export async function POST(request: NextRequest) {
         `,
       });
 
-      if (ownerEmailError) {
+      if (!ownerSent) {
         console.error('Owner email error:', ownerEmailError);
         errors.push('owner');
       }
@@ -110,8 +107,7 @@ export async function POST(request: NextRequest) {
 
     // 2. Send confirmation email to customer
     if (customerEmail) {
-      const { error: customerEmailError } = await resend.emails.send({
-        from: 'QueueApp <noreply@resend.dev>',
+      const { success: customerSent, error: customerEmailError } = await sendEmail({
         to: customerEmail,
         subject: `אישור תור - ${businessName}`,
         html: `
@@ -160,7 +156,7 @@ export async function POST(request: NextRequest) {
         `,
       });
 
-      if (customerEmailError) {
+      if (!customerSent) {
         console.error('Customer email error:', customerEmailError);
         errors.push('customer');
       }

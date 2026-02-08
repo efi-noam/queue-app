@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { Resend } from 'resend';
+import { sendEmail } from '@/lib/email';
 
 // Force dynamic to prevent build-time evaluation
 export const dynamic = 'force-dynamic';
@@ -15,8 +15,6 @@ export async function POST(request: NextRequest) {
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   );
-  const resend = new Resend(process.env.RESEND_API_KEY);
-
   try {
     const { businessId, phone, businessName } = await request.json();
 
@@ -59,8 +57,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Send email
-    const { error: emailError } = await resend.emails.send({
-      from: 'QueueApp <noreply@resend.dev>',
+    const { success: emailSent, error: emailError } = await sendEmail({
       to: customer.email,
       subject: `קוד אימות לאיפוס סיסמה - ${businessName || 'QueueApp'}`,
       html: `
@@ -105,7 +102,7 @@ export async function POST(request: NextRequest) {
       `,
     });
 
-    if (emailError) {
+    if (!emailSent) {
       console.error('Email error:', emailError);
       // Clear the reset code since email wasn't sent
       await supabase

@@ -1,11 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { Resend } from 'resend';
+import { sendEmail } from '@/lib/email';
 
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: NextRequest) {
-  const resend = new Resend(process.env.RESEND_API_KEY);
-
   try {
     const { businessName, contactName, phone, email } = await request.json();
 
@@ -16,8 +14,7 @@ export async function POST(request: NextRequest) {
     // Send notification to platform owner
     const PLATFORM_OWNER_EMAIL = process.env.PLATFORM_OWNER_EMAIL || 'effi.noam@gmail.com';
 
-    const { error: emailError } = await resend.emails.send({
-      from: 'QueueApp <noreply@resend.dev>',
+    const { success: emailSent, error: emailError } = await sendEmail({
       to: PLATFORM_OWNER_EMAIL,
       subject: `🔔 ליד חדש! ${contactName} - ${businessName}`,
       html: `
@@ -79,7 +76,7 @@ export async function POST(request: NextRequest) {
       `,
     });
 
-    if (emailError) {
+    if (!emailSent) {
       console.error('Lead notification email error:', emailError);
       return NextResponse.json({ error: 'שגיאה בשליחת התראה' }, { status: 500 });
     }
