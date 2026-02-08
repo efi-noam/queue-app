@@ -21,17 +21,22 @@ export async function POST(request: NextRequest) {
     // Get business info and owner email
     const { data: business } = await supabase
       .from('businesses')
-      .select('name')
+      .select('name, owner_id')
       .eq('id', businessId)
       .single();
 
-    const { data: owner } = await supabase
-      .from('business_owners')
-      .select('email')
-      .eq('business_id', businessId)
-      .single();
-
     const businessName = business?.name || 'העסק';
+
+    // Get owner email via owner_id from business
+    let owner: { email: string } | null = null;
+    if (business?.owner_id) {
+      const { data: ownerData } = await supabase
+        .from('business_owners')
+        .select('email')
+        .eq('id', business.owner_id)
+        .single();
+      owner = ownerData;
+    }
 
     // Format date for display
     const [year, month, day] = date.split('-');
