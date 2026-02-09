@@ -133,82 +133,27 @@ export async function createBusinessWithOwner(
   businessData: { name: string; slug: string; description?: string; address?: string; phone?: string }
 ): Promise<{ success: boolean; business?: Business; error?: string }> {
   try {
-    // Check if slug is taken
-    const { data: existingSlug } = await supabase
-      .from('businesses')
-      .select('id')
-      .eq('slug', businessData.slug.toLowerCase())
-      .single();
+    // Get platform admin session for authorization
+    const sessionStr = typeof window !== 'undefined' ? localStorage.getItem('platform_admin_session') : null;
+    const session = sessionStr ? JSON.parse(sessionStr) : null;
 
-    if (existingSlug) {
-      return { success: false, error: 'כתובת האתר כבר תפוסה' };
+    const response = await fetch('/api/create-business', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        ownerData,
+        businessData,
+        platformAdminId: session?.adminId,
+      }),
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      return { success: false, error: result.error || 'שגיאה ביצירת העסק' };
     }
 
-    // Check if email is taken
-    const { data: existingEmail } = await supabase
-      .from('business_owners')
-      .select('id')
-      .eq('email', ownerData.email.toLowerCase())
-      .single();
-
-    if (existingEmail) {
-      return { success: false, error: 'כתובת האימייל כבר קיימת במערכת' };
-    }
-
-    // Create owner
-    const { data: owner, error: ownerError } = await supabase
-      .from('business_owners')
-      .insert({
-        email: ownerData.email.toLowerCase(),
-        name: ownerData.name,
-        phone: ownerData.phone || null,
-        password_hash: ownerData.password, // In production, hash this!
-        is_active: true,
-      })
-      .select()
-      .single();
-
-    if (ownerError || !owner) {
-      console.error('Error creating owner:', ownerError);
-      return { success: false, error: 'שגיאה ביצירת בעל העסק' };
-    }
-
-    // Create business
-    const { data: business, error: businessError } = await supabase
-      .from('businesses')
-      .insert({
-        owner_id: owner.id,
-        slug: businessData.slug.toLowerCase(),
-        name: businessData.name,
-        description: businessData.description || null,
-        address: businessData.address || null,
-        phone: businessData.phone || null,
-        is_active: true,
-      })
-      .select()
-      .single();
-
-    if (businessError || !business) {
-      console.error('Error creating business:', businessError);
-      // Rollback owner creation
-      await supabase.from('business_owners').delete().eq('id', owner.id);
-      return { success: false, error: 'שגיאה ביצירת העסק' };
-    }
-
-    // Create default business hours (Sun-Thu 9-18, Fri 9-14, Sat closed)
-    const defaultHours = [
-      { business_id: business.id, day_of_week: 0, open_time: '09:00', close_time: '18:00', is_closed: false },
-      { business_id: business.id, day_of_week: 1, open_time: '09:00', close_time: '18:00', is_closed: false },
-      { business_id: business.id, day_of_week: 2, open_time: '09:00', close_time: '18:00', is_closed: false },
-      { business_id: business.id, day_of_week: 3, open_time: '09:00', close_time: '18:00', is_closed: false },
-      { business_id: business.id, day_of_week: 4, open_time: '09:00', close_time: '18:00', is_closed: false },
-      { business_id: business.id, day_of_week: 5, open_time: '09:00', close_time: '14:00', is_closed: false },
-      { business_id: business.id, day_of_week: 6, open_time: null, close_time: null, is_closed: true },
-    ];
-
-    await supabase.from('business_hours').insert(defaultHours);
-
-    return { success: true, business: business as Business };
+    return { success: true, business: result.business as Business };
   } catch (error) {
     console.error('Error in createBusinessWithOwner:', error);
     return { success: false, error: 'שגיאה לא צפויה' };
@@ -240,18 +185,25 @@ export async function toggleBusinessActive(businessId: string, isActive: boolean
 }
 
 export async function deleteBusiness(businessId: string): Promise<boolean> {
-  // This will cascade delete all related data
-  const { error } = await supabase
-    .from('businesses')
-    .delete()
-    .eq('id', businessId);
+  try {
+    const sessionStr = typeof window !== 'undefined' ? localStorage.getItem('platform_admin_session') : null;
+    const session = sessionStr ? JSON.parse(sessionStr) : null;
 
-  if (error) {
+    const response = await fetch('/api/admin-action', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'delete-business',
+        id: businessId,
+        platformAdminId: session?.adminId,
+      }),
+    });
+
+    return response.ok;
+  } catch (error) {
     console.error('Error deleting business:', error);
     return false;
   }
-
-  return true;
 }
 
 // =============================================
@@ -363,15 +315,23 @@ export async function updateLeadStatus(
 }
 
 export async function deleteLead(leadId: string): Promise<boolean> {
-  const { error } = await supabase
-    .from('leads')
-    .delete()
-    .eq('id', leadId);
+  try {
+    const sessionStr = typeof window !== 'undefined' ? localStorage.getItem('platform_admin_session') : null;
+    const session = sessionStr ? JSON.parse(sessionStr) : null;
 
-  if (error) {
+    const response = await fetch('/api/admin-action', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'delete-lead',
+        id: leadId,
+        platformAdminId: session?.adminId,
+      }),
+    });
+
+    return response.ok;
+  } catch (error) {
     console.error('Error deleting lead:', error);
     return false;
   }
-
-  return true;
 }

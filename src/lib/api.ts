@@ -111,9 +111,9 @@ export async function getCustomerByPhone(businessId: string, phone: string): Pro
     .select('*')
     .eq('business_id', businessId)
     .eq('phone', phone)
-    .single();
+    .maybeSingle();
 
-  if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
+  if (error) {
     console.error('Error fetching customer:', error);
   }
 
@@ -551,7 +551,7 @@ export async function updateBusinessSlug(
     .select('id')
     .eq('slug', newSlug)
     .neq('id', businessId)
-    .single();
+    .maybeSingle();
 
   if (existing) {
     return { success: false, error: 'כתובת זו כבר תפוסה' };
@@ -717,11 +717,9 @@ export async function getScheduleOverrideForDate(
     .select('*')
     .eq('business_id', businessId)
     .eq('date', date)
-    .single();
+    .maybeSingle();
 
   if (error) {
-    // Not found is not an error
-    if (error.code === 'PGRST116') return null;
     console.error('Error fetching schedule override:', error);
     return null;
   }
